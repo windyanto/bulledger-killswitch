@@ -1,6 +1,6 @@
 {
-  "name": "Bulledger Kill Switch",
-  "short_name": "Kill Switch",
+  "name": "Bulledger Control Panel",
+  "short_name": "Bulledger CP",
   "description": "Remote EA control for Bulledger Pro trading system",
   "start_url": "/",
   "display": "standalone",
