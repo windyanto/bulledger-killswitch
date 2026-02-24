@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Bulledger Kill Switch</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #0a0a0f;
+    color: #fff;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px;
+  }
+
+  /* ── Header ── */
+  .header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  .header h1 {
+    font-size: 22px;
+    font-weight: 800;
+    color: #a855f7;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .header p {
+    font-size: 12px;
+    color: #666;
+    margin-top: 4px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* ── Main card ── */
+  .card {
+    background: #12121a;
+    border: 1px solid #2a2a3a;
+    border-radius: 20px;
+    padding: 32px 24px;
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+  }
+
+  /* ── Status pill ── */
+  .status-pill {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 24px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    transition: all 0.4s ease;
+    border: 1.5px solid transparent;
+  }
+  .status-pill.on  { background: rgba(34,197,94,0.12); border-color: #22c55e; color: #22c55e; }
+  .status-pill.off { background: rgba(239,68,68,0.12);  border-color: #ef4444; color: #ef4444; }
+  .status-pill.loading { background: rgba(251,191,36,0.10); border-color: #f59e0b; color: #f59e0b; }
+
+  .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot.on  { background: #22c55e; box-shadow: 0 0 8px #22c55e; animation: pulse-green 2s infinite; }
+  .dot.off { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
+  .dot.loading { background: #f59e0b; animation: pulse-amber 1s infinite; }
+
+  @keyframes pulse-green {
+    0%,100% { box-shadow: 0 0 6px #22c55e; }
+    50%      { box-shadow: 0 0 16px #22c55e; }
+  }
+  @keyframes pulse-amber {
+    0%,100% { opacity: 1; }
+    50%      { opacity: 0.3; }
+  }
+
+  /* ── Big toggle button ── */
+  .toggle-btn {
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    position: relative;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .toggle-btn.on {
+    background: radial-gradient(circle at 40% 35%, #16a34a, #052e16);
+    box-shadow: 0 0 0 6px rgba(34,197,94,0.15), 0 0 60px rgba(34,197,94,0.25);
+    color: #86efac;
+  }
+  .toggle-btn.off {
+    background: radial-gradient(circle at 40% 35%, #b91c1c, #1a0000);
+    box-shadow: 0 0 0 6px rgba(239,68,68,0.15), 0 0 60px rgba(239,68,68,0.25);
+    color: #fca5a5;
+  }
+  .toggle-btn.loading {
+    background: radial-gradient(circle at 40% 35%, #78350f, #0f0700);
+    box-shadow: 0 0 0 6px rgba(251,191,36,0.10);
+    color: #fde68a;
+    cursor: not-allowed;
+  }
+
+  .toggle-btn:not(.loading):active {
+    transform: scale(0.95);
+  }
+
+  .toggle-btn .btn-icon { font-size: 48px; display: block; margin-bottom: 8px; }
+  .toggle-btn .btn-label { display: block; }
+
+  /* ── Ring decorators ── */
+  .btn-ring {
+    position: absolute;
+    inset: -14px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    pointer-events: none;
+    transition: border-color 0.4s;
+  }
+  .toggle-btn.on  .btn-ring { border-color: rgba(34,197,94,0.3); }
+  .toggle-btn.off .btn-ring { border-color: rgba(239,68,68,0.3); }
+
+  /* ── Info rows ── */
+  .info-grid {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #0e0e18;
+    border: 1px solid #1e1e2e;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 12px;
+  }
+  .info-row .lbl { color: #555; text-transform: uppercase; letter-spacing: 0.8px; }
+  .info-row .val { color: #ccc; font-weight: 600; font-size: 11px; word-break: break-all; text-align: right; max-width: 60%; }
+
+  /* ── Note box ── */
+  .note-section { width: 100%; }
+  .note-section label { font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 6px; }
+  .note-input {
+    width: 100%;
+    background: #0e0e18;
+    border: 1px solid #1e1e2e;
+    border-radius: 10px;
+    color: #ccc;
+    font-size: 13px;
+    padding: 10px 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .note-input:focus { border-color: #a855f7; }
+
+  /* ── Log ── */
+  .log-section { width: 100%; }
+  .log-section h3 { font-size: 11px; color: #444; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .log-box {
+    background: #080810;
+    border: 1px solid #1a1a28;
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 11px;
+    color: #555;
+    font-family: monospace;
+    max-height: 130px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .log-entry { display: flex; gap: 8px; }
+  .log-entry .ts { color: #333; flex-shrink: 0; }
+  .log-entry .msg.on  { color: #22c55e; }
+  .log-entry .msg.off { color: #ef4444; }
+  .log-entry .msg.info { color: #555; }
+  .log-entry .msg.err  { color: #f59e0b; }
+
+  /* ── Footer ── */
+  .footer { margin-top: 24px; font-size: 11px; color: #2a2a3a; text-align: center; letter-spacing: 1px; }
+
+  /* ── Error toast ── */
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: #1a0a00; border: 1px solid #f59e0b; color: #fde68a;
+    padding: 10px 20px; border-radius: 10px; font-size: 12px;
+    opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap;
+    z-index: 999;
+  }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>⚡ Bulledger</h1>
+  <p>Kill Switch — Remote EA Control</p>
+</div>
+
+<div class="card">
+
+  <!-- Status pill -->
+  <div class="status-pill loading" id="statusPill">
+    <div class="dot loading" id="statusDot"></div>
+    <span id="statusText">LOADING...</span>
+  </div>
+
+  <!-- Big toggle button -->
+  <button class="toggle-btn loading" id="toggleBtn" onclick="handleToggle()">
+    <div class="btn-ring"></div>
+    <span class="btn-icon" id="btnIcon">⏳</span>
+    <span class="btn-label" id="btnLabel">LOADING</span>
+  </button>
+
+  <!-- Note input -->
+  <div class="note-section">
+    <label>Reason / Note (optional)</label>
+    <input class="note-input" id="noteInput" type="text" placeholder="e.g. NFP news — pausing entries" maxlength="120">
+  </div>
+
+  <!-- Info rows -->
+  <div class="info-grid">
+    <div class="info-row">
+      <span class="lbl">Last changed</span>
+      <span class="val" id="lastChanged">—</span>
+    </div>
+    <div class="info-row">
+      <span class="lbl">Note on record</span>
+      <span class="val" id="lastNote">—</span>
+    </div>
+    <div class="info-row">
+      <span class="lbl">EA poll interval</span>
+      <span class="val">~5 seconds</span>
+    </div>
+  </div>
+
+  <!-- Activity log -->
+  <div class="log-section">
+    <h3>Activity log</h3>
+    <div class="log-box" id="logBox">
+      <div class="log-entry"><span class="ts">--:--:--</span><span class="msg info">Connecting to Supabase...</span></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">BULLEDGER PRO &nbsp;|&nbsp; www.bulledger.com</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ────────────────────────────────────────────────
+// CONFIG — your Supabase credentials are pre-filled
+// ────────────────────────────────────────────────
+const SUPABASE_URL     = "https://wixbjyolwrrvvvhwkkyw.supabase.co";
+const SUPABASE_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndpeGJqeW9sd3JydnZ2aHdra3l3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5MDIyMjYsImV4cCI6MjA4NzQ3ODIyNn0.VsF9brbwNoXLVf_5MQgiIV_xJhGq5v8V-Afh6-t56DQ";
+const TABLE            = "ea_control";
+const HEADERS = {
+  "apikey":        SUPABASE_API_KEY,
+  "Authorization": "Bearer " + SUPABASE_API_KEY,
+  "Content-Type":  "application/json",
+  "Prefer":        "return=representation"
+};
+
+// ────────────────────────────────────────────────
+// State
+// ────────────────────────────────────────────────
+let currentState = null; // true = trading ON, false = OFF, null = unknown
+let isBusy = false;
+
+// ────────────────────────────────────────────────
+// Fetch current status from Supabase
+// ────────────────────────────────────────────────
+async function fetchStatus() {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}?id=eq.1&select=trading_enabled,updated_at,note`, { headers: HEADERS });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    if (!data.length) throw new Error("No row found in ea_control");
+
+    const row = data[0];
+    currentState = row.trading_enabled;
+    renderState(currentState);
+
+    // Update info rows
+    const dt = row.updated_at ? new Date(row.updated_at).toLocaleString() : "—";
+    document.getElementById("lastChanged").textContent = dt;
+    document.getElementById("lastNote").textContent = row.note || "—";
+
+  } catch (e) {
+    log("Connection error: " + e.message, "err");
+    showToast("⚠️ Could not reach Supabase: " + e.message);
+  }
+}
+
+// ────────────────────────────────────────────────
+// Toggle: flip the current state
+// ────────────────────────────────────────────────
+async function handleToggle() {
+  if (isBusy || currentState === null) return;
+
+  const newState   = !currentState;
+  const noteVal    = document.getElementById("noteInput").value.trim() || null;
+  const actionWord = newState ? "ENABLED" : "DISABLED";
+
+  isBusy = true;
+  setLoadingUI();
+
+  try {
+    const body = JSON.stringify({ trading_enabled: newState, updated_at: new Date().toISOString(), note: noteVal });
+    const res  = await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}?id=eq.1`, {
+      method: "PATCH", headers: HEADERS, body
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    currentState = newState;
+    renderState(currentState);
+
+    const dt = new Date().toLocaleString();
+    document.getElementById("lastChanged").textContent = dt;
+    document.getElementById("lastNote").textContent = noteVal || "—";
+    document.getElementById("noteInput").value = "";
+
+    log(`Trading ${actionWord}` + (noteVal ? ` — "${noteVal}"` : ""), newState ? "on" : "off");
+    showToast(newState ? "✅ Trading ENABLED — all EAs will activate within 5 sec" : "🛑 Trading DISABLED — all EAs will stop within 5 sec");
+
+  } catch (e) {
+    log("Update failed: " + e.message, "err");
+    showToast("❌ Failed to update: " + e.message);
+    renderState(currentState); // revert UI
+  }
+
+  isBusy = false;
+}
+
+// ────────────────────────────────────────────────
+// UI rendering
+// ────────────────────────────────────────────────
+function renderState(state) {
+  const pill   = document.getElementById("statusPill");
+  const dot    = document.getElementById("statusDot");
+  const text   = document.getElementById("statusText");
+  const btn    = document.getElementById("toggleBtn");
+  const icon   = document.getElementById("btnIcon");
+  const label  = document.getElementById("btnLabel");
+
+  pill.className  = "status-pill " + (state ? "on" : "off");
+  dot.className   = "dot " + (state ? "on" : "off");
+  text.textContent = state ? "TRADING ON" : "TRADING OFF";
+
+  btn.className   = "toggle-btn " + (state ? "on" : "off");
+  icon.textContent = state ? "✅" : "🛑";
+  label.textContent = state ? "TAP TO DISABLE" : "TAP TO ENABLE";
+}
+
+function setLoadingUI() {
+  document.getElementById("statusPill").className  = "status-pill loading";
+  document.getElementById("statusDot").className   = "dot loading";
+  document.getElementById("statusText").textContent = "UPDATING...";
+  document.getElementById("toggleBtn").className   = "toggle-btn loading";
+  document.getElementById("btnIcon").textContent   = "⏳";
+  document.getElementById("btnLabel").textContent  = "PLEASE WAIT";
+}
+
+// ────────────────────────────────────────────────
+// Activity log
+// ────────────────────────────────────────────────
+function log(msg, type = "info") {
+  const box  = document.getElementById("logBox");
+  const now  = new Date().toTimeString().slice(0,8);
+  const entry = document.createElement("div");
+  entry.className = "log-entry";
+  entry.innerHTML = `<span class="ts">${now}</span><span class="msg ${type}">${msg}</span>`;
+  box.insertBefore(entry, box.firstChild);
+  // Keep max 30 entries
+  while (box.children.length > 30) box.removeChild(box.lastChild);
+}
+
+// ────────────────────────────────────────────────
+// Toast notification
+// ────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 4000);
+}
+
+// ────────────────────────────────────────────────
+// Auto-refresh every 10 seconds so you always see live state
+// ────────────────────────────────────────────────
+fetchStatus().then(() => log("Connected to Supabase ✓", "info"));
+setInterval(() => { if (!isBusy) fetchStatus(); }, 10000);
+</script>
+</body>
+</html>
