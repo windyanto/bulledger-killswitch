@@ -170,6 +170,77 @@
   /* ── Footer ── */
   .footer { margin-top: 20px; margin-bottom: 8px; font-size: 10px; color: #1e1e2e; text-align: center; letter-spacing: 1px; }
 
+  /* ── Login overlay ── */
+  #loginOverlay {
+    position: fixed; inset: 0; z-index: 1000;
+    background: var(--bg);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 24px;
+  }
+  #loginOverlay.hidden { display: none; }
+
+  .login-box {
+    background: var(--card);
+    border: 1px solid #2a2a3a;
+    border-radius: 24px;
+    padding: 36px 28px;
+    width: 100%; max-width: 360px;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 24px;
+  }
+  .login-logo { text-align: center; }
+  .login-logo img { width: 72px; height: 72px; border-radius: 14px; margin-bottom: 10px; }
+  .login-logo h2 { font-size: 22px; font-weight: 900; color: var(--purple); letter-spacing: 2px; }
+  .login-logo p  { font-size: 11px; color: #444; margin-top: 4px; letter-spacing: 1px; text-transform: uppercase; }
+
+  .login-field { width: 100%; }
+  .login-field label { font-size: 10px; color: #444; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 6px; }
+  .login-field input {
+    width: 100%; background: #0e0e18; border: 1px solid var(--border);
+    border-radius: 12px; color: #fff; font-size: 16px;
+    padding: 13px 16px; outline: none; transition: border-color .2s;
+    -webkit-appearance: none; letter-spacing: 2px;
+  }
+  .login-field input:focus { border-color: var(--purple); }
+  .login-field input.shake {
+    animation: shake .35s ease;
+    border-color: var(--red) !important;
+  }
+  @keyframes shake {
+    0%,100%{transform:translateX(0)}
+    20%{transform:translateX(-8px)}
+    40%{transform:translateX(8px)}
+    60%{transform:translateX(-5px)}
+    80%{transform:translateX(5px)}
+  }
+
+  .login-btn {
+    width: 100%; padding: 15px;
+    background: linear-gradient(135deg, #7c3aed, #a855f7);
+    border: none; border-radius: 12px;
+    color: #fff; font-size: 14px; font-weight: 800;
+    letter-spacing: 2px; text-transform: uppercase;
+    cursor: pointer; transition: opacity .2s;
+  }
+  .login-btn:active { opacity: .8; }
+  .login-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+  .login-error {
+    font-size: 12px; color: var(--red); text-align: center;
+    min-height: 16px; letter-spacing: .5px;
+  }
+
+  /* ── Logout button (top-right of main UI) ── */
+  #logoutBtn {
+    position: fixed; top: env(safe-area-inset-top, 12px); right: 12px;
+    background: #1a1a2e; border: 1px solid #2a2a3a; border-radius: 8px;
+    color: #444; font-size: 11px; padding: 6px 10px;
+    cursor: pointer; z-index: 100; letter-spacing: .5px;
+    transition: color .2s, border-color .2s;
+  }
+  #logoutBtn:hover { color: var(--red); border-color: var(--red); }
+
   /* ── Toast ── */
   .toast {
     position: fixed; bottom: calc(env(safe-area-inset-bottom, 0px) + 20px);
@@ -184,6 +255,26 @@
 </style>
 </head>
 <body>
+
+<!-- ── Login overlay ── -->
+<div id="loginOverlay">
+  <div class="login-box">
+    <div class="login-logo">
+      <img src="icon-192.png" alt="Bulledger">
+      <h2>BULLEDGER</h2>
+      <p>Kill Switch — Secure Login</p>
+    </div>
+    <div class="login-field">
+      <label for="pwdInput">Password</label>
+      <input type="password" id="pwdInput" placeholder="••••••••••••" autocomplete="current-password">
+    </div>
+    <div class="login-error" id="loginError"></div>
+    <button class="login-btn" id="loginBtn">UNLOCK</button>
+  </div>
+</div>
+
+<!-- Logout button (visible after login) -->
+<button id="logoutBtn" style="display:none">🔒 Logout</button>
 
 <!-- Android install banner -->
 <div id="installBanner">
@@ -425,9 +516,81 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js').catch(() => {});
 }
 
+// ─── Login / Auth ─────────────────────────────────────
+// Password is stored as SHA-256 hash — never plain text.
+// To change password: generate SHA-256 of your new password and replace the hash below.
+// Online tool: https://emn178.github.io/online-tools/sha256.html
+const PASSWORD_HASH = "a08d63bbfa6fd80e2c6d1da1a2ea78268b11722e1dbd0a8b1ed7ed6ce9c3dbe4";
+
+
+let isAuthenticated = false;
+
+async function sha256(str) {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+async function attemptLogin() {
+  const btn   = document.getElementById("loginBtn");
+  const input = document.getElementById("pwdInput");
+  const err   = document.getElementById("loginError");
+  const pwd   = input.value;
+
+  if (!pwd) return;
+
+  btn.disabled = true;
+  btn.textContent = "CHECKING...";
+  err.textContent = "";
+
+  const hash = await sha256(pwd);
+
+  if (hash === PASSWORD_HASH) {
+    isAuthenticated = true;
+    // Use sessionStorage so login resets when browser is closed (more secure)
+    sessionStorage.setItem("bulledger_auth", "1");
+    document.getElementById("loginOverlay").classList.add("hidden");
+    document.getElementById("logoutBtn").style.display = "block";
+    // Boot the app now that we're authenticated
+    fetchStatus().then(() => log("Connected to Supabase ✓", "info"));
+    setInterval(() => { if (!isBusy) fetchStatus(); }, 10000);
+  } else {
+    input.value = "";
+    input.classList.add("shake");
+    err.textContent = "Incorrect password. Try again.";
+    setTimeout(() => input.classList.remove("shake"), 400);
+    btn.disabled = false;
+    btn.textContent = "UNLOCK";
+    // Slow down brute force: 2s delay before allowing another attempt
+    btn.disabled = true;
+    setTimeout(() => { btn.disabled = false; }, 2000);
+  }
+}
+
+function logout() {
+  sessionStorage.removeItem("bulledger_auth");
+  isAuthenticated = false;
+  document.getElementById("loginOverlay").classList.remove("hidden");
+  document.getElementById("logoutBtn").style.display = "none";
+  document.getElementById("pwdInput").value = "";
+  document.getElementById("loginError").textContent = "";
+}
+
+document.getElementById("loginBtn").addEventListener("click", attemptLogin);
+document.getElementById("pwdInput").addEventListener("keydown", e => {
+  if (e.key === "Enter") attemptLogin();
+});
+document.getElementById("logoutBtn").addEventListener("click", logout);
+
 // ─── Boot ─────────────────────────────────────────────
-fetchStatus().then(() => log("Connected to Supabase ✓", "info"));
-setInterval(() => { if (!isBusy) fetchStatus(); }, 10000);
+// Check if already authenticated this session
+if (sessionStorage.getItem("bulledger_auth") === "1") {
+  isAuthenticated = true;
+  document.getElementById("loginOverlay").classList.add("hidden");
+  document.getElementById("logoutBtn").style.display = "block";
+  fetchStatus().then(() => log("Connected to Supabase ✓", "info"));
+  setInterval(() => { if (!isBusy) fetchStatus(); }, 10000);
+}
+// (if not authenticated, app stays on login screen — fetchStatus is NOT called)
 </script>
 </body>
 </html>
