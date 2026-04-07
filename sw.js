@@ -1,15 +1,12 @@
-const CACHE_NAME = 'bulledger-killswitch-v1';
+// ── Cache version: bump this string any time you update index.html ──
+const CACHE_NAME = 'bulledger-killswitch-v2';
 const ASSETS = ['/', '/index.html', '/manifest.json'];
 
-// Install: cache the shell
 self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
-  );
+  e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS)));
   self.skipWaiting();
 });
 
-// Activate: clean old caches
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys().then(keys =>
@@ -19,15 +16,11 @@ self.addEventListener('activate', e => {
   self.clients.claim();
 });
 
-// Fetch: network first, fallback to cache
-// Always go network-first so Supabase calls always use live data
 self.addEventListener('fetch', e => {
-  // For Supabase API calls — always network, never cache
   if (e.request.url.includes('supabase.co')) {
     e.respondWith(fetch(e.request));
     return;
   }
-
   e.respondWith(
     fetch(e.request)
       .then(res => {
