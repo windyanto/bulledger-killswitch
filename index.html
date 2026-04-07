@@ -23,6 +23,8 @@
     --gold:      #f59e0b;
     --green:     #22c55e;
     --red:       #ef4444;
+    --orange:    #f97316;
+    --blue:      #3b82f6;
     --gray:      #555;
     --text:      #ccc;
   }
@@ -111,7 +113,7 @@
   @keyframes pg { 0%,100%{box-shadow:0 0 5px var(--green)} 50%{box-shadow:0 0 14px var(--green)} }
   @keyframes pa { 0%,100%{opacity:1} 50%{opacity:.25} }
 
-  /* ── Big button ── */
+  /* ── Big toggle button ── */
   .toggle-btn {
     width: 190px; height: 190px; border-radius: 50%;
     border: none; cursor: pointer;
@@ -129,6 +131,125 @@
   .toggle-btn.off .btn-ring { border-color: rgba(239,68,68,.3); }
   .btn-icon  { font-size: 44px; display: block; margin-bottom: 6px; }
   .btn-label { display: block; font-size: 13px; }
+
+  /* ── Action buttons section ── */
+  .action-section {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .action-section-title {
+    font-size: 10px; color: #333; text-transform: uppercase;
+    letter-spacing: 1px; text-align: center; margin-bottom: 2px;
+  }
+
+  .action-btn {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 1.5px solid transparent;
+    cursor: pointer;
+    font-size: 13px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    transition: all 0.2s;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    user-select: none;
+    position: relative;
+    overflow: hidden;
+  }
+  .action-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .action-btn:not(:disabled):active { transform: scale(0.97); }
+
+  /* Close All — red, most dangerous */
+  .action-btn.close-all {
+    background: rgba(239,68,68,.10);
+    border-color: rgba(239,68,68,.35);
+    color: #fca5a5;
+  }
+  .action-btn.close-all:not(:disabled):hover {
+    background: rgba(239,68,68,.18);
+    border-color: var(--red);
+  }
+
+  /* Delete Buy Stops — blue */
+  .action-btn.del-buy {
+    background: rgba(59,130,246,.10);
+    border-color: rgba(59,130,246,.35);
+    color: #93c5fd;
+  }
+  .action-btn.del-buy:not(:disabled):hover {
+    background: rgba(59,130,246,.18);
+    border-color: var(--blue);
+  }
+
+  /* Delete Sell Stops — orange */
+  .action-btn.del-sell {
+    background: rgba(249,115,22,.10);
+    border-color: rgba(249,115,22,.35);
+    color: #fdba74;
+  }
+  .action-btn.del-sell:not(:disabled):hover {
+    background: rgba(249,115,22,.18);
+    border-color: var(--orange);
+  }
+
+  .action-btn .ab-icon { font-size: 18px; flex-shrink: 0; }
+  .action-btn .ab-text { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; flex: 1; }
+  .action-btn .ab-title { font-size: 12px; font-weight: 800; }
+  .action-btn .ab-sub   { font-size: 10px; font-weight: 400; opacity: 0.6; text-transform: none; letter-spacing: 0; }
+
+  /* Progress fill animation on hold-to-confirm */
+  .action-btn .ab-fill {
+    position: absolute; left: 0; top: 0; height: 100%;
+    width: 0%; opacity: 0.15; border-radius: 14px;
+    transition: none; pointer-events: none;
+  }
+  .action-btn.close-all .ab-fill { background: var(--red); }
+  .action-btn.del-buy   .ab-fill { background: var(--blue); }
+  .action-btn.del-sell  .ab-fill { background: var(--orange); }
+
+  /* ── Confirm modal ── */
+  #confirmModal {
+    position: fixed; inset: 0; z-index: 500;
+    background: rgba(0,0,0,.75);
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px;
+    opacity: 0; pointer-events: none;
+    transition: opacity .2s;
+  }
+  #confirmModal.show { opacity: 1; pointer-events: all; }
+  .confirm-box {
+    background: #16161f;
+    border: 1px solid #2a2a3a;
+    border-radius: 20px;
+    padding: 28px 24px;
+    width: 100%; max-width: 340px;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 18px;
+    text-align: center;
+  }
+  .confirm-icon  { font-size: 42px; }
+  .confirm-title { font-size: 16px; font-weight: 900; color: #fff; letter-spacing: 1px; }
+  .confirm-sub   { font-size: 12px; color: #666; line-height: 1.6; }
+  .confirm-btns  { display: flex; gap: 10px; width: 100%; }
+  .confirm-cancel {
+    flex: 1; padding: 13px;
+    background: #1e1e2e; border: 1px solid #2a2a3a; border-radius: 12px;
+    color: #666; font-size: 13px; font-weight: 700; cursor: pointer;
+    letter-spacing: .5px;
+  }
+  .confirm-ok {
+    flex: 1; padding: 13px;
+    border: none; border-radius: 12px;
+    color: #fff; font-size: 13px; font-weight: 800; cursor: pointer;
+    letter-spacing: .5px; transition: opacity .2s;
+  }
+  .confirm-ok:active { opacity: .8; }
+  .confirm-ok.red    { background: linear-gradient(135deg, #b91c1c, #ef4444); }
+  .confirm-ok.blue   { background: linear-gradient(135deg, #1d4ed8, #3b82f6); }
+  .confirm-ok.orange { background: linear-gradient(135deg, #c2410c, #f97316); }
 
   /* ── Note input ── */
   .note-section { width: 100%; }
@@ -162,10 +283,11 @@
   }
   .log-entry { display: flex; gap: 6px; }
   .log-entry .ts { color: #2a2a3a; flex-shrink: 0; }
-  .log-entry .msg.on   { color: var(--green); }
-  .log-entry .msg.off  { color: var(--red); }
-  .log-entry .msg.info { color: #444; }
-  .log-entry .msg.err  { color: var(--gold); }
+  .log-entry .msg.on      { color: var(--green); }
+  .log-entry .msg.off     { color: var(--red); }
+  .log-entry .msg.info    { color: #444; }
+  .log-entry .msg.err     { color: var(--gold); }
+  .log-entry .msg.action  { color: #c084fc; }
 
   /* ── Footer ── */
   .footer { margin-top: 20px; margin-bottom: 8px; font-size: 10px; color: #1e1e2e; text-align: center; letter-spacing: 1px; }
@@ -231,7 +353,7 @@
     min-height: 16px; letter-spacing: .5px;
   }
 
-  /* ── Logout button (top-right of main UI) ── */
+  /* ── Logout button ── */
   #logoutBtn {
     position: fixed; top: env(safe-area-inset-top, 12px); right: 12px;
     background: #1a1a2e; border: 1px solid #2a2a3a; border-radius: 8px;
@@ -256,6 +378,19 @@
 </head>
 <body>
 
+<!-- ── Confirm modal ── -->
+<div id="confirmModal">
+  <div class="confirm-box">
+    <div class="confirm-icon" id="confirmIcon">⚠️</div>
+    <div class="confirm-title" id="confirmTitle">Are you sure?</div>
+    <div class="confirm-sub"  id="confirmSub">This action will affect all connected EA accounts.</div>
+    <div class="confirm-btns">
+      <button class="confirm-cancel" onclick="closeConfirm()">Cancel</button>
+      <button class="confirm-ok red" id="confirmOkBtn" onclick="confirmAction()">Confirm</button>
+    </div>
+  </div>
+</div>
+
 <!-- ── Login overlay ── -->
 <div id="loginOverlay">
   <div class="login-box">
@@ -273,7 +408,7 @@
   </div>
 </div>
 
-<!-- Logout button (visible after login) -->
+<!-- Logout button -->
 <button id="logoutBtn" style="display:none">🔒 Logout</button>
 
 <!-- Android install banner -->
@@ -305,6 +440,38 @@
     <span class="btn-icon" id="btnIcon">⏳</span>
     <span class="btn-label" id="btnLabel">LOADING</span>
   </button>
+
+  <!-- ── Action buttons ── -->
+  <div class="action-section">
+    <div class="action-section-title">Quick Actions — All Accounts</div>
+
+    <button class="action-btn close-all" id="btnCloseAll" onclick="askConfirm('closeAll')" disabled>
+      <div class="ab-fill" id="fillCloseAll"></div>
+      <span class="ab-icon">🔴</span>
+      <div class="ab-text">
+        <span class="ab-title">Close All Positions</span>
+        <span class="ab-sub">Closes all open BUY &amp; SELL trades immediately</span>
+      </div>
+    </button>
+
+    <button class="action-btn del-buy" id="btnDelBuy" onclick="askConfirm('deleteBuy')" disabled>
+      <div class="ab-fill" id="fillDelBuy"></div>
+      <span class="ab-icon">🔵</span>
+      <div class="ab-text">
+        <span class="ab-title">Delete Buy Stops Only</span>
+        <span class="ab-sub">Removes pending BUY STOP orders, keeps SELL STOPs</span>
+      </div>
+    </button>
+
+    <button class="action-btn del-sell" id="btnDelSell" onclick="askConfirm('deleteSell')" disabled>
+      <div class="ab-fill" id="fillDelSell"></div>
+      <span class="ab-icon">🟠</span>
+      <div class="ab-text">
+        <span class="ab-title">Delete Sell Stops Only</span>
+        <span class="ab-sub">Removes pending SELL STOP orders, keeps BUY STOPs</span>
+      </div>
+    </button>
+  </div>
 
   <div class="note-section">
     <label>Reason / Note (optional)</label>
@@ -357,14 +524,18 @@ const HEADERS = {
 };
 
 // ─── State ────────────────────────────────────────────
-let currentState = null;
-let isBusy = false;
+let currentState         = null;
+let currentCloseAll      = 0;
+let currentDeleteBuy     = 0;
+let currentDeleteSell    = 0;
+let isBusy               = false;
+let pendingAction        = null;   // which action is awaiting confirmation
 
 // ─── Fetch current status ─────────────────────────────
 async function fetchStatus() {
   try {
     const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/${TABLE}?id=eq.1&select=trading_enabled,updated_at,note`,
+      `${SUPABASE_URL}/rest/v1/${TABLE}?id=eq.1&select=trading_enabled,updated_at,note,close_all_version,delete_buy_version,delete_sell_version`,
       { headers: HEADERS }
     );
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -372,8 +543,13 @@ async function fetchStatus() {
     if (!data.length) throw new Error("No row in ea_control");
 
     const row = data[0];
-    currentState = row.trading_enabled;
+    currentState      = row.trading_enabled;
+    currentCloseAll   = row.close_all_version   || 0;
+    currentDeleteBuy  = row.delete_buy_version  || 0;
+    currentDeleteSell = row.delete_sell_version || 0;
+
     renderState(currentState);
+    setActionButtonsEnabled(true);
 
     document.getElementById("lastChanged").textContent =
       row.updated_at ? new Date(row.updated_at).toLocaleString() : "—";
@@ -388,7 +564,14 @@ async function fetchStatus() {
   }
 }
 
-// ─── Toggle ───────────────────────────────────────────
+// ─── Enable / disable action buttons ─────────────────
+function setActionButtonsEnabled(enabled) {
+  ["btnCloseAll","btnDelBuy","btnDelSell"].forEach(id => {
+    document.getElementById(id).disabled = !enabled;
+  });
+}
+
+// ─── Main toggle ─────────────────────────────────────
 async function handleToggle() {
   if (isBusy || currentState === null) return;
 
@@ -398,6 +581,7 @@ async function handleToggle() {
 
   isBusy = true;
   setLoadingUI();
+  setActionButtonsEnabled(false);
 
   try {
     const body = JSON.stringify({
@@ -430,7 +614,108 @@ async function handleToggle() {
   }
 
   isBusy = false;
+  setActionButtonsEnabled(true);
 }
+
+// ─── Confirm modal logic ──────────────────────────────
+const ACTION_CONFIG = {
+  closeAll: {
+    icon:   "🔴",
+    title:  "Close All Positions?",
+    sub:    "This will immediately close ALL open BUY and SELL trades across every connected account. This cannot be undone.",
+    okClass:"red",
+    okText: "Yes, Close All",
+    toast:  "🔴 Close All sent — positions closing within 5s",
+    logMsg: "Close All Positions command sent",
+  },
+  deleteBuy: {
+    icon:   "🔵",
+    title:  "Delete All Buy Stops?",
+    sub:    "This will remove all pending BUY STOP orders across every connected account. Sell stops are not affected.",
+    okClass:"blue",
+    okText: "Yes, Delete Buy Stops",
+    toast:  "🔵 Delete Buy Stops sent — orders removed within 5s",
+    logMsg: "Delete Buy Stops command sent",
+  },
+  deleteSell: {
+    icon:   "🟠",
+    title:  "Delete All Sell Stops?",
+    sub:    "This will remove all pending SELL STOP orders across every connected account. Buy stops are not affected.",
+    okClass:"orange",
+    okText: "Yes, Delete Sell Stops",
+    toast:  "🟠 Delete Sell Stops sent — orders removed within 5s",
+    logMsg: "Delete Sell Stops command sent",
+  }
+};
+
+function askConfirm(action) {
+  if (isBusy) return;
+  pendingAction = action;
+  const cfg = ACTION_CONFIG[action];
+  document.getElementById("confirmIcon").textContent  = cfg.icon;
+  document.getElementById("confirmTitle").textContent = cfg.title;
+  document.getElementById("confirmSub").textContent   = cfg.sub;
+  const okBtn = document.getElementById("confirmOkBtn");
+  okBtn.textContent = cfg.okText;
+  okBtn.className   = "confirm-ok " + cfg.okClass;
+  document.getElementById("confirmModal").classList.add("show");
+}
+
+function closeConfirm() {
+  document.getElementById("confirmModal").classList.remove("show");
+  pendingAction = null;
+}
+
+async function confirmAction() {
+  closeConfirm();
+  if (!pendingAction) return;
+  const action = pendingAction;
+  pendingAction = null;
+
+  if (isBusy) return;
+  isBusy = true;
+  setActionButtonsEnabled(false);
+
+  const cfg = ACTION_CONFIG[action];
+
+  try {
+    let patchBody = {};
+    if (action === "closeAll") {
+      currentCloseAll++;
+      patchBody = { close_all_version: currentCloseAll };
+    } else if (action === "deleteBuy") {
+      currentDeleteBuy++;
+      patchBody = { delete_buy_version: currentDeleteBuy };
+    } else if (action === "deleteSell") {
+      currentDeleteSell++;
+      patchBody = { delete_sell_version: currentDeleteSell };
+    }
+
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}?id=eq.1`, {
+      method: "PATCH", headers: HEADERS, body: JSON.stringify(patchBody)
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    log(cfg.logMsg, "action");
+    showToast(cfg.toast);
+
+  } catch (e) {
+    log("Action failed: " + e.message, "err");
+    showToast("❌ Failed: " + e.message);
+    // Roll back local counter on failure
+    if (action === "closeAll")   currentCloseAll--;
+    if (action === "deleteBuy")  currentDeleteBuy--;
+    if (action === "deleteSell") currentDeleteSell--;
+  }
+
+  isBusy = false;
+  setActionButtonsEnabled(true);
+}
+
+// Close modal when tapping outside the box
+document.getElementById("confirmModal").addEventListener("click", function(e) {
+  if (e.target === this) closeConfirm();
+});
 
 // ─── Render ───────────────────────────────────────────
 function renderState(state) {
@@ -442,11 +727,11 @@ function renderState(state) {
   const label = document.getElementById("btnLabel");
 
   const cls = state ? "on" : "off";
-  pill.className  = "status-pill " + cls;
-  dot.className   = "dot " + cls;
+  pill.className   = "status-pill " + cls;
+  dot.className    = "dot " + cls;
   text.textContent = state ? "TRADING ON" : "TRADING OFF";
-  btn.className   = "toggle-btn " + cls;
-  icon.textContent = state ? "✅" : "🛑";
+  btn.className    = "toggle-btn " + cls;
+  icon.textContent  = state ? "✅" : "🛑";
   label.textContent = state ? "TAP TO DISABLE" : "TAP TO ENABLE";
 }
 
@@ -454,10 +739,10 @@ function setLoadingUI() {
   ["statusPill","toggleBtn"].forEach(id => {
     document.getElementById(id).className = id.includes("Pill") ? "status-pill loading" : "toggle-btn loading";
   });
-  document.getElementById("statusDot").className   = "dot loading";
+  document.getElementById("statusDot").className    = "dot loading";
   document.getElementById("statusText").textContent = "UPDATING...";
-  document.getElementById("btnIcon").textContent   = "⏳";
-  document.getElementById("btnLabel").textContent  = "PLEASE WAIT";
+  document.getElementById("btnIcon").textContent    = "⏳";
+  document.getElementById("btnLabel").textContent   = "PLEASE WAIT";
 }
 
 // ─── Log ──────────────────────────────────────────────
@@ -517,11 +802,7 @@ if ('serviceWorker' in navigator) {
 }
 
 // ─── Login / Auth ─────────────────────────────────────
-// Password is stored as SHA-256 hash — never plain text.
-// To change password: generate SHA-256 of your new password and replace the hash below.
-// Online tool: https://emn178.github.io/online-tools/sha256.html
 const PASSWORD_HASH = "a08d63bbfa6fd80e2c6d1da1a2ea78268b11722e1dbd0a8b1ed7ed6ce9c3dbe4";
-
 
 let isAuthenticated = false;
 
@@ -546,11 +827,9 @@ async function attemptLogin() {
 
   if (hash === PASSWORD_HASH) {
     isAuthenticated = true;
-    // Use sessionStorage so login resets when browser is closed (more secure)
     sessionStorage.setItem("bulledger_auth", "1");
     document.getElementById("loginOverlay").classList.add("hidden");
     document.getElementById("logoutBtn").style.display = "block";
-    // Boot the app now that we're authenticated
     fetchStatus().then(() => log("Connected to Supabase ✓", "info"));
     setInterval(() => { if (!isBusy) fetchStatus(); }, 10000);
   } else {
@@ -560,7 +839,6 @@ async function attemptLogin() {
     setTimeout(() => input.classList.remove("shake"), 400);
     btn.disabled = false;
     btn.textContent = "UNLOCK";
-    // Slow down brute force: 2s delay before allowing another attempt
     btn.disabled = true;
     setTimeout(() => { btn.disabled = false; }, 2000);
   }
@@ -582,7 +860,6 @@ document.getElementById("pwdInput").addEventListener("keydown", e => {
 document.getElementById("logoutBtn").addEventListener("click", logout);
 
 // ─── Boot ─────────────────────────────────────────────
-// Check if already authenticated this session
 if (sessionStorage.getItem("bulledger_auth") === "1") {
   isAuthenticated = true;
   document.getElementById("loginOverlay").classList.add("hidden");
@@ -590,7 +867,6 @@ if (sessionStorage.getItem("bulledger_auth") === "1") {
   fetchStatus().then(() => log("Connected to Supabase ✓", "info"));
   setInterval(() => { if (!isBusy) fetchStatus(); }, 10000);
 }
-// (if not authenticated, app stays on login screen — fetchStatus is NOT called)
 </script>
 </body>
 </html>
