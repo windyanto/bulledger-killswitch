@@ -13,109 +13,108 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>Bulledger Control Panel</title>
 <style>
-  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  :root{--bg:#0a0a0f;--card:#12121a;--border:#1e1e2e;--purple:#a855f7;--gold:#f59e0b;--green:#22c55e;--red:#ef4444;--orange:#f97316;--blue:#3b82f6;--text:#ccc}
-  html,body{height:100%;background:var(--bg);color:#fff;font-family:-apple-system,'Segoe UI',Arial,sans-serif;overscroll-behavior:none;-webkit-tap-highlight-color:transparent}
-  body{display:flex;flex-direction:column;align-items:center;padding:env(safe-area-inset-top,20px) 16px env(safe-area-inset-bottom,16px);min-height:100%;overflow-y:auto}
-  #installBanner{display:none;width:100%;max-width:420px;background:linear-gradient(135deg,#1a0a2e,#12121a);border:1px solid var(--purple);border-radius:14px;padding:12px 16px;margin-bottom:16px;align-items:center;gap:12px}
-  #installBanner.show{display:flex}
-  #installBanner .ib-icon{font-size:28px;flex-shrink:0}
-  #installBanner .ib-text{flex:1}
-  #installBanner .ib-title{font-size:13px;font-weight:700;color:var(--purple)}
-  #installBanner .ib-sub{font-size:11px;color:#888;margin-top:2px}
-  #installBanner .ib-btn{background:var(--purple);color:#fff;border:none;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer}
-  #installBanner .ib-close{background:none;border:none;color:#444;font-size:18px;cursor:pointer;flex-shrink:0;padding:0 4px}
-  .header{text-align:center;margin:8px 0 20px}
-  .header h1{font-size:20px;font-weight:900;color:var(--purple);letter-spacing:2px;text-transform:uppercase}
-  .header p{font-size:11px;color:#444;margin-top:3px;letter-spacing:1px;text-transform:uppercase}
-  .version-badge{display:inline-block;margin-top:6px;background:rgba(168,85,247,.15);border:1px solid rgba(168,85,247,.4);color:var(--purple);font-size:10px;font-weight:700;padding:3px 10px;border-radius:999px;letter-spacing:1px}
-  .card{background:var(--card);border:1px solid #2a2a3a;border-radius:20px;padding:24px 20px;width:100%;max-width:420px;display:flex;flex-direction:column;align-items:center;gap:22px}
-  .status-pill{display:flex;align-items:center;gap:8px;padding:9px 22px;border-radius:999px;font-size:12px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;transition:all .35s;border:1.5px solid transparent}
-  .status-pill.on{background:rgba(34,197,94,.12);border-color:var(--green);color:var(--green)}
-  .status-pill.off{background:rgba(239,68,68,.12);border-color:var(--red);color:var(--red)}
-  .status-pill.loading{background:rgba(245,158,11,.10);border-color:var(--gold);color:var(--gold)}
-  .dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
-  .dot.on{background:var(--green);animation:pg 2s infinite}
-  .dot.off{background:var(--red)}
-  .dot.loading{background:var(--gold);animation:pa 1s infinite}
-  @keyframes pg{0%,100%{box-shadow:0 0 5px var(--green)}50%{box-shadow:0 0 14px var(--green)}}
-  @keyframes pa{0%,100%{opacity:1}50%{opacity:.25}}
-  .toggle-btn{width:190px;height:190px;border-radius:50%;border:none;cursor:pointer;font-size:14px;font-weight:800;letter-spacing:2px;text-transform:uppercase;transition:all .3s;position:relative;outline:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none}
-  .toggle-btn.on{background:radial-gradient(circle at 38% 33%,#16a34a,#052e16);box-shadow:0 0 0 6px rgba(34,197,94,.15),0 0 55px rgba(34,197,94,.2);color:#86efac}
-  .toggle-btn.off{background:radial-gradient(circle at 38% 33%,#b91c1c,#200000);box-shadow:0 0 0 6px rgba(239,68,68,.15),0 0 55px rgba(239,68,68,.2);color:#fca5a5}
-  .toggle-btn.loading{background:radial-gradient(circle at 38% 33%,#78350f,#0f0700);box-shadow:0 0 0 6px rgba(245,158,11,.10);color:#fde68a;cursor:not-allowed}
-  .toggle-btn:not(.loading):active{transform:scale(.94)}
-  .btn-ring{position:absolute;inset:-12px;border-radius:50%;border:1.5px solid transparent;pointer-events:none;transition:border-color .4s}
-  .toggle-btn.on .btn-ring{border-color:rgba(34,197,94,.3)}
-  .toggle-btn.off .btn-ring{border-color:rgba(239,68,68,.3)}
-  .btn-icon{font-size:44px;display:block;margin-bottom:6px}
-  .btn-label{display:block;font-size:13px}
-  .action-section{width:100%;display:flex;flex-direction:column;gap:10px}
-  .action-section-title{font-size:10px;color:#333;text-transform:uppercase;letter-spacing:1px;text-align:center;margin-bottom:2px}
-  .action-btn{width:100%;padding:14px 16px;border-radius:14px;border:1.5px solid transparent;cursor:pointer;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;display:flex;align-items:center;gap:10px;transition:all .2s;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none}
-  .action-btn:disabled{opacity:.35;cursor:not-allowed}
-  .action-btn:not(:disabled):active{transform:scale(.97)}
-  .action-btn.close-all{background:rgba(239,68,68,.10);border-color:rgba(239,68,68,.35);color:#fca5a5}
-  .action-btn.del-buy{background:rgba(59,130,246,.10);border-color:rgba(59,130,246,.35);color:#93c5fd}
-  .action-btn.del-sell{background:rgba(249,115,22,.10);border-color:rgba(249,115,22,.35);color:#fdba74}
-  .ab-icon{font-size:18px;flex-shrink:0}
-  .ab-text{display:flex;flex-direction:column;align-items:flex-start;gap:1px;flex:1}
-  .ab-title{font-size:12px;font-weight:800}
-  .ab-sub{font-size:10px;font-weight:400;opacity:.6;text-transform:none;letter-spacing:0}
-  #confirmModal{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;pointer-events:none;transition:opacity .2s}
-  #confirmModal.show{opacity:1;pointer-events:all}
-  .confirm-box{background:#16161f;border:1px solid #2a2a3a;border-radius:20px;padding:28px 24px;width:100%;max-width:340px;display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center}
-  .confirm-icon{font-size:42px}
-  .confirm-title{font-size:16px;font-weight:900;color:#fff;letter-spacing:1px}
-  .confirm-sub{font-size:12px;color:#666;line-height:1.6}
-  .confirm-btns{display:flex;gap:10px;width:100%}
-  .confirm-cancel{flex:1;padding:13px;background:#1e1e2e;border:1px solid #2a2a3a;border-radius:12px;color:#666;font-size:13px;font-weight:700;cursor:pointer}
-  .confirm-ok{flex:1;padding:13px;border:none;border-radius:12px;color:#fff;font-size:13px;font-weight:800;cursor:pointer;transition:opacity .2s}
-  .confirm-ok:active{opacity:.8}
-  .confirm-ok.red{background:linear-gradient(135deg,#b91c1c,#ef4444)}
-  .confirm-ok.blue{background:linear-gradient(135deg,#1d4ed8,#3b82f6)}
-  .confirm-ok.orange{background:linear-gradient(135deg,#c2410c,#f97316)}
-  .note-section{width:100%}
-  .note-section label{font-size:10px;color:#444;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:5px}
-  .note-input{width:100%;background:#0e0e18;border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;padding:10px 13px;outline:none;transition:border-color .2s;-webkit-appearance:none}
-  .note-input:focus{border-color:var(--purple)}
-  .info-grid{width:100%;display:flex;flex-direction:column;gap:8px}
-  .info-row{display:flex;justify-content:space-between;align-items:center;background:#0e0e18;border:1px solid var(--border);border-radius:10px;padding:9px 13px;font-size:11px}
-  .info-row .lbl{color:#444;text-transform:uppercase;letter-spacing:.8px}
-  .info-row .val{color:var(--text);font-weight:600;font-size:11px;text-align:right;max-width:60%;word-break:break-all}
-  .log-section{width:100%}
-  .log-section h3{font-size:10px;color:#333;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
-  .log-box{background:#080810;border:1px solid #161622;border-radius:10px;padding:10px;font-size:10px;color:#444;font-family:monospace;max-height:110px;overflow-y:auto;display:flex;flex-direction:column;gap:2px}
-  .log-entry{display:flex;gap:6px}
-  .log-entry .ts{color:#2a2a3a;flex-shrink:0}
-  .log-entry .msg.on{color:var(--green)}
-  .log-entry .msg.off{color:var(--red)}
-  .log-entry .msg.info{color:#444}
-  .log-entry .msg.err{color:var(--gold)}
-  .log-entry .msg.action{color:#c084fc}
-  .log-entry .msg.warn{color:var(--orange)}
-  .footer{margin-top:20px;margin-bottom:8px;font-size:10px;color:#1e1e2e;text-align:center;letter-spacing:1px}
-  #loginOverlay{position:fixed;inset:0;z-index:1000;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
-  #loginOverlay.hidden{display:none}
-  .login-box{background:var(--card);border:1px solid #2a2a3a;border-radius:24px;padding:36px 28px;width:100%;max-width:360px;display:flex;flex-direction:column;align-items:center;gap:24px}
-  .login-logo{text-align:center}
-  .login-logo img{width:72px;height:72px;border-radius:14px;margin-bottom:10px}
-  .login-logo h2{font-size:22px;font-weight:900;color:var(--purple);letter-spacing:2px}
-  .login-logo p{font-size:11px;color:#444;margin-top:4px;letter-spacing:1px;text-transform:uppercase}
-  .login-field{width:100%}
-  .login-field label{font-size:10px;color:#444;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px}
-  .login-field input{width:100%;background:#0e0e18;border:1px solid var(--border);border-radius:12px;color:#fff;font-size:16px;padding:13px 16px;outline:none;transition:border-color .2s;-webkit-appearance:none;letter-spacing:2px}
-  .login-field input:focus{border-color:var(--purple)}
-  .login-field input.shake{animation:shake .35s ease;border-color:var(--red)!important}
-  @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
-  .login-btn{width:100%;padding:15px;background:linear-gradient(135deg,#7c3aed,#a855f7);border:none;border-radius:12px;color:#fff;font-size:14px;font-weight:800;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:opacity .2s}
-  .login-btn:active{opacity:.8}
-  .login-btn:disabled{opacity:.4;cursor:not-allowed}
-  .login-error{font-size:12px;color:var(--red);text-align:center;min-height:16px;letter-spacing:.5px}
-  #logoutBtn{position:fixed;top:env(safe-area-inset-top,12px);right:12px;background:#1a1a2e;border:1px solid #2a2a3a;border-radius:8px;color:#444;font-size:11px;padding:6px 10px;cursor:pointer;z-index:100;letter-spacing:.5px;transition:color .2s,border-color .2s}
-  #logoutBtn:hover{color:var(--red);border-color:var(--red)}
-  .toast{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 20px);left:50%;transform:translateX(-50%);background:#100820;border:1px solid var(--purple);color:#d8b4fe;padding:10px 18px;border-radius:10px;font-size:12px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;max-width:90vw;text-align:center;white-space:normal}
-  .toast.show{opacity:1}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0a0a0f;--card:#12121a;--border:#1e1e2e;--purple:#a855f7;--gold:#f59e0b;--green:#22c55e;--red:#ef4444;--orange:#f97316;--blue:#3b82f6;--text:#ccc}
+html,body{height:100%;background:var(--bg);color:#fff;font-family:-apple-system,'Segoe UI',Arial,sans-serif;overscroll-behavior:none;-webkit-tap-highlight-color:transparent}
+body{display:flex;flex-direction:column;align-items:center;padding:env(safe-area-inset-top,20px) 16px env(safe-area-inset-bottom,16px);min-height:100%;overflow-y:auto}
+#installBanner{display:none;width:100%;max-width:420px;background:linear-gradient(135deg,#1a0a2e,#12121a);border:1px solid var(--purple);border-radius:14px;padding:12px 16px;margin-bottom:16px;align-items:center;gap:12px}
+#installBanner.show{display:flex}
+.ib-icon{font-size:28px;flex-shrink:0}.ib-text{flex:1}.ib-title{font-size:13px;font-weight:700;color:var(--purple)}.ib-sub{font-size:11px;color:#888;margin-top:2px}
+.ib-btn{background:var(--purple);color:#fff;border:none;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer}
+.ib-close{background:none;border:none;color:#444;font-size:18px;cursor:pointer;flex-shrink:0;padding:0 4px}
+.header{text-align:center;margin:8px 0 20px}
+.header h1{font-size:20px;font-weight:900;color:var(--purple);letter-spacing:2px;text-transform:uppercase}
+.header p{font-size:11px;color:#444;margin-top:3px;letter-spacing:1px;text-transform:uppercase}
+.ver{display:inline-block;margin-top:6px;background:rgba(168,85,247,.15);border:1px solid rgba(168,85,247,.4);color:var(--purple);font-size:10px;font-weight:700;padding:3px 10px;border-radius:999px;letter-spacing:1px}
+.card{background:var(--card);border:1px solid #2a2a3a;border-radius:20px;padding:24px 20px;width:100%;max-width:420px;display:flex;flex-direction:column;align-items:center;gap:22px}
+.status-pill{display:flex;align-items:center;gap:8px;padding:9px 22px;border-radius:999px;font-size:12px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;transition:all .35s;border:1.5px solid transparent}
+.status-pill.on{background:rgba(34,197,94,.12);border-color:var(--green);color:var(--green)}
+.status-pill.off{background:rgba(239,68,68,.12);border-color:var(--red);color:var(--red)}
+.status-pill.loading{background:rgba(245,158,11,.10);border-color:var(--gold);color:var(--gold)}
+.dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.dot.on{background:var(--green);animation:pg 2s infinite}
+.dot.off{background:var(--red)}
+.dot.loading{background:var(--gold);animation:pa 1s infinite}
+@keyframes pg{0%,100%{box-shadow:0 0 5px var(--green)}50%{box-shadow:0 0 14px var(--green)}}
+@keyframes pa{0%,100%{opacity:1}50%{opacity:.25}}
+.toggle-btn{width:190px;height:190px;border-radius:50%;border:none;cursor:pointer;font-size:14px;font-weight:800;letter-spacing:2px;text-transform:uppercase;transition:all .3s;position:relative;outline:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none}
+.toggle-btn.on{background:radial-gradient(circle at 38% 33%,#16a34a,#052e16);box-shadow:0 0 0 6px rgba(34,197,94,.15),0 0 55px rgba(34,197,94,.2);color:#86efac}
+.toggle-btn.off{background:radial-gradient(circle at 38% 33%,#b91c1c,#200000);box-shadow:0 0 0 6px rgba(239,68,68,.15),0 0 55px rgba(239,68,68,.2);color:#fca5a5}
+.toggle-btn.loading{background:radial-gradient(circle at 38% 33%,#78350f,#0f0700);box-shadow:0 0 0 6px rgba(245,158,11,.10);color:#fde68a;cursor:not-allowed}
+.toggle-btn:not(.loading):active{transform:scale(.94)}
+.btn-ring{position:absolute;inset:-12px;border-radius:50%;border:1.5px solid transparent;pointer-events:none;transition:border-color .4s}
+.toggle-btn.on .btn-ring{border-color:rgba(34,197,94,.3)}
+.toggle-btn.off .btn-ring{border-color:rgba(239,68,68,.3)}
+.btn-icon{font-size:44px;display:block;margin-bottom:6px}
+.btn-label{display:block;font-size:13px}
+.action-section{width:100%;display:flex;flex-direction:column;gap:10px}
+.action-title{font-size:10px;color:#333;text-transform:uppercase;letter-spacing:1px;text-align:center;margin-bottom:2px}
+.action-btn{width:100%;padding:14px 16px;border-radius:14px;border:1.5px solid transparent;cursor:pointer;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;display:flex;align-items:center;gap:10px;transition:all .2s;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none}
+.action-btn:disabled{opacity:.35;cursor:not-allowed}
+.action-btn:not(:disabled):active{transform:scale(.97)}
+.action-btn.close-all{background:rgba(239,68,68,.10);border-color:rgba(239,68,68,.35);color:#fca5a5}
+.action-btn.del-buy{background:rgba(59,130,246,.10);border-color:rgba(59,130,246,.35);color:#93c5fd}
+.action-btn.del-sell{background:rgba(249,115,22,.10);border-color:rgba(249,115,22,.35);color:#fdba74}
+.ab-icon{font-size:18px;flex-shrink:0}
+.ab-text{display:flex;flex-direction:column;align-items:flex-start;gap:1px;flex:1}
+.ab-title{font-size:12px;font-weight:800}
+.ab-sub{font-size:10px;font-weight:400;opacity:.6;text-transform:none;letter-spacing:0}
+/* cmd monitor */
+.cmd-monitor{width:100%;background:#0a0a14;border:1px solid #1a1a2e;border-radius:10px;padding:9px 13px;font-size:10px;font-family:monospace;display:flex;flex-direction:column;gap:3px}
+.cmd-monitor .cm-label{color:#333;text-transform:uppercase;letter-spacing:.8px;font-size:9px;font-family:sans-serif;margin-bottom:1px}
+.cmd-monitor .cm-val{color:#555;word-break:break-all}
+.cmd-monitor .cm-val.active{color:#c084fc}
+.cmd-monitor .cm-status{font-size:9px;font-family:sans-serif;margin-top:2px}
+.cmd-monitor .cm-status.ok{color:var(--green)}
+.cmd-monitor .cm-status.fail{color:var(--red)}
+.cmd-monitor .cm-status.wait{color:var(--gold)}
+#confirmModal{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;pointer-events:none;transition:opacity .2s}
+#confirmModal.show{opacity:1;pointer-events:all}
+.confirm-box{background:#16161f;border:1px solid #2a2a3a;border-radius:20px;padding:28px 24px;width:100%;max-width:340px;display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center}
+.confirm-icon{font-size:42px}.confirm-title{font-size:16px;font-weight:900;color:#fff;letter-spacing:1px}.confirm-sub{font-size:12px;color:#666;line-height:1.6}
+.confirm-btns{display:flex;gap:10px;width:100%}
+.confirm-cancel{flex:1;padding:13px;background:#1e1e2e;border:1px solid #2a2a3a;border-radius:12px;color:#666;font-size:13px;font-weight:700;cursor:pointer}
+.confirm-ok{flex:1;padding:13px;border:none;border-radius:12px;color:#fff;font-size:13px;font-weight:800;cursor:pointer;transition:opacity .2s}
+.confirm-ok:active{opacity:.8}
+.confirm-ok.red{background:linear-gradient(135deg,#b91c1c,#ef4444)}
+.confirm-ok.blue{background:linear-gradient(135deg,#1d4ed8,#3b82f6)}
+.confirm-ok.orange{background:linear-gradient(135deg,#c2410c,#f97316)}
+.note-section{width:100%}
+.note-section label{font-size:10px;color:#444;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:5px}
+.note-input{width:100%;background:#0e0e18;border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;padding:10px 13px;outline:none;transition:border-color .2s;-webkit-appearance:none}
+.note-input:focus{border-color:var(--purple)}
+.info-grid{width:100%;display:flex;flex-direction:column;gap:8px}
+.info-row{display:flex;justify-content:space-between;align-items:center;background:#0e0e18;border:1px solid var(--border);border-radius:10px;padding:9px 13px;font-size:11px}
+.info-row .lbl{color:#444;text-transform:uppercase;letter-spacing:.8px}
+.info-row .val{color:var(--text);font-weight:600;font-size:11px;text-align:right;max-width:60%;word-break:break-all}
+.log-section{width:100%}
+.log-section h3{font-size:10px;color:#333;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.log-box{background:#080810;border:1px solid #161622;border-radius:10px;padding:10px;font-size:10px;color:#444;font-family:monospace;max-height:130px;overflow-y:auto;display:flex;flex-direction:column;gap:2px}
+.log-entry{display:flex;gap:6px}
+.log-entry .ts{color:#2a2a3a;flex-shrink:0}
+.log-entry .msg.on{color:var(--green)}.log-entry .msg.off{color:var(--red)}.log-entry .msg.info{color:#444}.log-entry .msg.err{color:var(--gold)}.log-entry .msg.action{color:#c084fc}.log-entry .msg.ok{color:var(--green)}.log-entry .msg.warn{color:var(--orange)}
+.footer{margin-top:20px;margin-bottom:8px;font-size:10px;color:#1e1e2e;text-align:center;letter-spacing:1px}
+#loginOverlay{position:fixed;inset:0;z-index:1000;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+#loginOverlay.hidden{display:none}
+.login-box{background:var(--card);border:1px solid #2a2a3a;border-radius:24px;padding:36px 28px;width:100%;max-width:360px;display:flex;flex-direction:column;align-items:center;gap:24px}
+.login-logo{text-align:center}
+.login-logo img{width:72px;height:72px;border-radius:14px;margin-bottom:10px}
+.login-logo h2{font-size:22px;font-weight:900;color:var(--purple);letter-spacing:2px}
+.login-logo p{font-size:11px;color:#444;margin-top:4px;letter-spacing:1px;text-transform:uppercase}
+.login-field{width:100%}
+.login-field label{font-size:10px;color:#444;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px}
+.login-field input{width:100%;background:#0e0e18;border:1px solid var(--border);border-radius:12px;color:#fff;font-size:16px;padding:13px 16px;outline:none;transition:border-color .2s;-webkit-appearance:none;letter-spacing:2px}
+.login-field input:focus{border-color:var(--purple)}
+.login-field input.shake{animation:shake .35s ease;border-color:var(--red)!important}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+.login-btn{width:100%;padding:15px;background:linear-gradient(135deg,#7c3aed,#a855f7);border:none;border-radius:12px;color:#fff;font-size:14px;font-weight:800;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:opacity .2s}
+.login-btn:active{opacity:.8}
+.login-btn:disabled{opacity:.4;cursor:not-allowed}
+.login-error{font-size:12px;color:var(--red);text-align:center;min-height:16px;letter-spacing:.5px}
+#logoutBtn{position:fixed;top:env(safe-area-inset-top,12px);right:12px;background:#1a1a2e;border:1px solid #2a2a3a;border-radius:8px;color:#444;font-size:11px;padding:6px 10px;cursor:pointer;z-index:100;letter-spacing:.5px;transition:color .2s,border-color .2s}
+#logoutBtn:hover{color:var(--red);border-color:var(--red)}
+.toast{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 20px);left:50%;transform:translateX(-50%);background:#100820;border:1px solid var(--purple);color:#d8b4fe;padding:10px 18px;border-radius:10px;font-size:12px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;max-width:90vw;text-align:center;white-space:normal}
+.toast.show{opacity:1}
 </style>
 </head>
 <body>
@@ -124,7 +123,7 @@
   <div class="confirm-box">
     <div class="confirm-icon" id="confirmIcon">⚠️</div>
     <div class="confirm-title" id="confirmTitle">Are you sure?</div>
-    <div class="confirm-sub" id="confirmSub">This action will affect all connected EA accounts.</div>
+    <div class="confirm-sub" id="confirmSub">This will affect ALL connected EA accounts.</div>
     <div class="confirm-btns">
       <button class="confirm-cancel" onclick="closeConfirm()">Cancel</button>
       <button class="confirm-ok red" id="confirmOkBtn" onclick="confirmAction()">Confirm</button>
@@ -164,7 +163,7 @@
   <img src="icon-192.png" alt="Bulledger" style="width:64px;height:64px;border-radius:12px;margin-bottom:8px;">
   <h1>BULLEDGER</h1>
   <p>Kill Switch — Remote EA Control</p>
-  <span class="version-badge">DASHBOARD v2.31</span>
+  <span class="ver">DASHBOARD v2.31</span>
 </div>
 
 <div class="card">
@@ -180,35 +179,31 @@
   </button>
 
   <div class="action-section">
-    <div class="action-section-title">Quick Actions — All Accounts</div>
+    <div class="action-title">Quick Actions — All Accounts</div>
     <button class="action-btn close-all" id="btnCloseAll" onclick="askConfirm('closeAll')" disabled>
       <span class="ab-icon">🔴</span>
-      <div class="ab-text">
-        <span class="ab-title">Close All Positions</span>
-        <span class="ab-sub">Closes all open BUY &amp; SELL trades immediately</span>
-      </div>
+      <div class="ab-text"><span class="ab-title">Close All Positions</span><span class="ab-sub">Closes all open BUY &amp; SELL trades immediately</span></div>
     </button>
     <button class="action-btn del-buy" id="btnDelBuy" onclick="askConfirm('deleteBuy')" disabled>
       <span class="ab-icon">🔵</span>
-      <div class="ab-text">
-        <span class="ab-title">Delete Buy Stops Only</span>
-        <span class="ab-sub">Removes pending BUY STOP orders, keeps SELL STOPs</span>
-      </div>
+      <div class="ab-text"><span class="ab-title">Delete Buy Stops Only</span><span class="ab-sub">Removes pending BUY STOP orders, keeps SELL STOPs</span></div>
     </button>
     <button class="action-btn del-sell" id="btnDelSell" onclick="askConfirm('deleteSell')" disabled>
       <span class="ab-icon">🟠</span>
-      <div class="ab-text">
-        <span class="ab-title">Delete Sell Stops Only</span>
-        <span class="ab-sub">Removes pending SELL STOP orders, keeps BUY STOPs</span>
-      </div>
+      <div class="ab-text"><span class="ab-title">Delete Sell Stops Only</span><span class="ab-sub">Removes pending SELL STOP orders, keeps BUY STOPs</span></div>
     </button>
+  </div>
+
+  <!-- Live command monitor: shows exactly what's in Supabase ea_command right now -->
+  <div class="cmd-monitor">
+    <div class="cm-label">Live: ea_command in Supabase right now</div>
+    <div class="cm-val" id="cmdVal">(loading...)</div>
+    <div class="cm-status" id="cmdWriteStatus"></div>
   </div>
 
   <div class="note-section">
     <label>Reason / Note (optional)</label>
-    <input class="note-input" id="noteInput" type="text"
-           placeholder="e.g. NFP news — pausing entries" maxlength="120"
-           autocomplete="off" autocorrect="off" spellcheck="false">
+    <input class="note-input" id="noteInput" type="text" placeholder="e.g. NFP news — pausing entries" maxlength="120" autocomplete="off" autocorrect="off" spellcheck="false">
   </div>
 
   <div class="info-grid">
@@ -216,7 +211,6 @@
     <div class="info-row"><span class="lbl">Note on record</span><span class="val" id="lastNote">—</span></div>
     <div class="info-row"><span class="lbl">EA poll interval</span><span class="val">~5 seconds</span></div>
     <div class="info-row"><span class="lbl">Connection</span><span class="val" id="connStatus" style="color:#555">Connecting...</span></div>
-    <div class="info-row"><span class="lbl">Action buttons</span><span class="val" id="cmdStatus" style="color:#555">Checking...</span></div>
   </div>
 
   <div class="log-section">
@@ -227,125 +221,150 @@
   </div>
 </div>
 
-<div class="footer">BULLEDGER PRO &nbsp;·&nbsp; www.bulledger.com &nbsp;·&nbsp; Dashboard v2.31</div>
+<div class="footer">BULLEDGER PRO · www.bulledger.com · Dashboard v2.31</div>
 <div class="toast" id="toast"></div>
 
 <script>
-const SUPABASE_URL="https://wixbjyolwrrvvvhwkkyw.supabase.co",SUPABASE_API_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndpeGJqeW9sd3JydnZ2aHdra3l3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5MDIyMjYsImV4cCI6MjA4NzQ3ODIyNn0.VsF9brbwNoXLVf_5MQgiIV_xJhGq5v8V-Afh6-t56DQ",TABLE="ea_control";
-const HEADERS={"apikey":SUPABASE_API_KEY,"Authorization":"Bearer "+SUPABASE_API_KEY,"Content-Type":"application/json","Prefer":"return=representation"};
-let currentState=null,isBusy=false,pendingAction=null,cmdColumnOk=false;
+// ── Config ────────────────────────────────────────────────────────────────────
+const SB   = "https://wixbjyolwrrvvvhwkkyw.supabase.co";
+const KEY  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndpeGJqeW9sd3JydnZ2aHdra3l3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5MDIyMjYsImV4cCI6MjA4NzQ3ODIyNn0.VsF9brbwNoXLVf_5MQgiIV_xJhGq5v8V-Afh6-t56DQ";
+const TBL  = "ea_control";
+const HDR  = {"apikey":KEY,"Authorization":"Bearer "+KEY,"Content-Type":"application/json","Prefer":"return=representation"};
 
+// ── State ─────────────────────────────────────────────────────────────────────
+let state=null, busy=false, pending=null;
+
+// ── supabase helpers ──────────────────────────────────────────────────────────
+async function sbGet(select){
+  const r=await fetch(`${SB}/rest/v1/${TBL}?id=eq.1&select=${select}`,{headers:HDR});
+  if(!r.ok){const t=await r.text();throw new Error("GET HTTP "+r.status+": "+t)}
+  const d=await r.json();
+  if(!d||!d.length)throw new Error("No row in ea_control");
+  return d[0];
+}
+async function sbPatch(obj){
+  const r=await fetch(`${SB}/rest/v1/${TBL}?id=eq.1`,{method:"PATCH",headers:HDR,body:JSON.stringify(obj)});
+  if(!r.ok){const t=await r.text();throw new Error("PATCH HTTP "+r.status+": "+t)}
+  return await r.json();
+}
+
+// ── fetchStatus ───────────────────────────────────────────────────────────────
 async function fetchStatus(){
   try{
-    const r=await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}?id=eq.1&select=trading_enabled,updated_at,note`,{headers:HEADERS});
-    if(!r.ok)throw new Error("HTTP "+r.status);
-    const d=await r.json();
-    if(!d.length)throw new Error("No row in ea_control");
-    const row=d[0];
-    currentState=row.trading_enabled;
-    renderState(currentState);
+    const row=await sbGet("trading_enabled,updated_at,note,ea_command");
+    state=row.trading_enabled;
+    renderState(state);
+    setBtnsEnabled(true);
     document.getElementById("lastChanged").textContent=row.updated_at?new Date(row.updated_at).toLocaleString():"—";
     document.getElementById("lastNote").textContent=row.note||"—";
     document.getElementById("connStatus").textContent="✓ Connected";
     document.getElementById("connStatus").style.color="#22c55e";
-    if(!cmdColumnOk)await checkCmdColumn();
+    // Show live ea_command value
+    const cv=row.ea_command||"";
+    const el=document.getElementById("cmdVal");
+    el.textContent=cv===""?'(empty — no command pending)':cv;
+    el.className="cm-val"+(cv?"":" ");
+    if(cv) el.style.color="#c084fc"; else el.style.color="#333";
   }catch(e){
     document.getElementById("connStatus").textContent="⚠ "+e.message;
     document.getElementById("connStatus").style.color="#f59e0b";
-    log("Error: "+e.message,"err");
+    document.getElementById("cmdVal").textContent="Error: "+e.message;
+    document.getElementById("cmdVal").style.color="#f59e0b";
+    log("fetchStatus error: "+e.message,"err");
   }
 }
 
-async function checkCmdColumn(){
-  try{
-    const r=await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}?id=eq.1&select=ea_command`,{headers:HEADERS});
-    if(!r.ok){
-      document.getElementById("cmdStatus").textContent="⚠ Column missing! Run SQL setup.";
-      document.getElementById("cmdStatus").style.color="#f59e0b";
-      log("ea_command column missing — run Supabase SQL setup!","warn");
-      return;
-    }
-    cmdColumnOk=true;
-    document.getElementById("cmdStatus").textContent="✓ Ready (ea_command ok)";
-    document.getElementById("cmdStatus").style.color="#22c55e";
-    setActionButtonsEnabled(true);
-    log("Action buttons ready ✓","info");
-  }catch(e){
-    document.getElementById("cmdStatus").textContent="⚠ "+e.message;
-    document.getElementById("cmdStatus").style.color="#f59e0b";
-  }
-}
+function setBtnsEnabled(v){["btnCloseAll","btnDelBuy","btnDelSell"].forEach(id=>{document.getElementById(id).disabled=!v})}
 
-function setActionButtonsEnabled(e){["btnCloseAll","btnDelBuy","btnDelSell"].forEach(id=>{document.getElementById(id).disabled=!e})}
-
+// ── Main toggle ───────────────────────────────────────────────────────────────
 async function handleToggle(){
-  if(isBusy||currentState===null)return;
-  const newState=!currentState,noteVal=document.getElementById("noteInput").value.trim()||null;
-  isBusy=true;setLoadingUI();setActionButtonsEnabled(false);
+  if(busy||state===null)return;
+  const ns=!state, note=document.getElementById("noteInput").value.trim()||null;
+  busy=true; setLoadingUI(); setBtnsEnabled(false);
   try{
-    const r=await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}?id=eq.1`,{method:"PATCH",headers:HEADERS,body:JSON.stringify({trading_enabled:newState,updated_at:new Date().toISOString(),note:noteVal})});
-    if(!r.ok)throw new Error("HTTP "+r.status);
-    currentState=newState;renderState(currentState);
+    await sbPatch({trading_enabled:ns,updated_at:new Date().toISOString(),note});
+    state=ns; renderState(state);
     document.getElementById("lastChanged").textContent=new Date().toLocaleString();
-    document.getElementById("lastNote").textContent=noteVal||"—";
+    document.getElementById("lastNote").textContent=note||"—";
     document.getElementById("noteInput").value="";
-    log("Trading "+(newState?"ENABLED":"DISABLED")+(noteVal?` — "${noteVal}"`:""),newState?"on":"off");
-    showToast(newState?"✅ Trading ENABLED — all EAs activate within 5s":"🛑 Trading DISABLED — all EAs stop within 5s");
-  }catch(e){log("Toggle failed: "+e.message,"err");showToast("❌ Failed: "+e.message);renderState(currentState)}
-  isBusy=false;if(cmdColumnOk)setActionButtonsEnabled(true);
+    log("Trading "+(ns?"ENABLED":"DISABLED")+(note?` — "${note}"`:""),ns?"on":"off");
+    showToast(ns?"✅ Trading ENABLED — all EAs activate within 5s":"🛑 Trading DISABLED — all EAs stop within 5s");
+  }catch(e){log("Toggle failed: "+e.message,"err");showToast("❌ "+e.message);renderState(state)}
+  busy=false; setBtnsEnabled(true);
 }
 
-const ACTION_CONFIG={
-  closeAll:{cmd:"close_all",icon:"🔴",title:"Close All Positions?",okClass:"red",okText:"Yes, Close All",toast:"🔴 Close All sent — positions closing within 5s",logMsg:"Close All Positions sent"},
-  deleteBuy:{cmd:"delete_buy",icon:"🔵",title:"Delete All Buy Stops?",okClass:"blue",okText:"Yes, Delete Buy Stops",toast:"🔵 Delete Buy Stops sent — orders removed within 5s",logMsg:"Delete Buy Stops sent"},
-  deleteSell:{cmd:"delete_sell",icon:"🟠",title:"Delete All Sell Stops?",okClass:"orange",okText:"Yes, Delete Sell Stops",toast:"🟠 Delete Sell Stops sent — orders removed within 5s",logMsg:"Delete Sell Stops sent"}
+// ── Action buttons ────────────────────────────────────────────────────────────
+const CFG={
+  closeAll: {cmd:"close_all",  icon:"🔴",title:"Close All Positions?",  ok:"red",   okTxt:"Yes, Close All",        toast:"🔴 Close All sent",         log:"Close All sent"},
+  deleteBuy:{cmd:"delete_buy", icon:"🔵",title:"Delete All Buy Stops?", ok:"blue",  okTxt:"Yes, Delete Buy Stops", toast:"🔵 Delete Buy Stops sent",  log:"Delete Buy Stops sent"},
+  deleteSell:{cmd:"delete_sell",icon:"🟠",title:"Delete All Sell Stops?",ok:"orange",okTxt:"Yes, Delete Sell Stops",toast:"🟠 Delete Sell Stops sent", log:"Delete Sell Stops sent"}
 };
 
-function askConfirm(action){
-  if(isBusy||!cmdColumnOk)return;
-  pendingAction=action;
-  const cfg=ACTION_CONFIG[action];
-  document.getElementById("confirmIcon").textContent=cfg.icon;
-  document.getElementById("confirmTitle").textContent=cfg.title;
+function askConfirm(a){
+  if(busy)return;
+  pending=a;
+  const c=CFG[a];
+  document.getElementById("confirmIcon").textContent=c.icon;
+  document.getElementById("confirmTitle").textContent=c.title;
   document.getElementById("confirmSub").textContent="This will affect ALL connected EA accounts. Are you sure?";
-  const ok=document.getElementById("confirmOkBtn");
-  ok.textContent=cfg.okText;ok.className="confirm-ok "+cfg.okClass;
+  const btn=document.getElementById("confirmOkBtn");
+  btn.textContent=c.okTxt; btn.className="confirm-ok "+c.ok;
   document.getElementById("confirmModal").classList.add("show");
 }
-function closeConfirm(){document.getElementById("confirmModal").classList.remove("show");pendingAction=null}
+function closeConfirm(){document.getElementById("confirmModal").classList.remove("show");pending=null}
 
 async function confirmAction(){
   closeConfirm();
-  if(!pendingAction||isBusy)return;
-  const action=pendingAction;pendingAction=null;
-  const cfg=ACTION_CONFIG[action];
-  isBusy=true;setActionButtonsEnabled(false);
-  const ts=Math.floor(Date.now()/1000),cmd=cfg.cmd+":"+ts;
-  log("Sending: "+cmd+" ...","action");
+  if(!pending||busy)return;
+  const a=pending; pending=null;
+  const c=CFG[a];
+  busy=true; setBtnsEnabled(false);
+  const ts=Math.floor(Date.now()/1000);
+  const cmd=c.cmd+":"+ts;
+  const ws=document.getElementById("cmdWriteStatus");
+  ws.textContent="Writing command to Supabase..."; ws.className="cm-status wait";
+  log("Writing: "+cmd,"action");
   try{
-    const r=await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}?id=eq.1`,{method:"PATCH",headers:HEADERS,body:JSON.stringify({ea_command:cmd})});
-    if(!r.ok){
-      let errText="";try{errText=await r.text()}catch(e2){}
-      if(r.status===400||errText.includes("ea_command")){
-        cmdColumnOk=false;
-        document.getElementById("cmdStatus").textContent="⚠ Column missing! Run SQL setup.";
-        document.getElementById("cmdStatus").style.color="#f59e0b";
-        throw new Error("ea_command column missing. Run: ALTER TABLE ea_control ADD COLUMN ea_command TEXT DEFAULT '';");
-      }
-      throw new Error("HTTP "+r.status+": "+errText);
+    // Step 1: Write the command
+    await sbPatch({ea_command:cmd});
+    log("PATCH succeeded. Verifying...","action");
+    ws.textContent="Verifying write..."; ws.className="cm-status wait";
+    // Step 2: Read it back immediately to confirm the write worked
+    await new Promise(r=>setTimeout(r,800));
+    const verify=await sbGet("ea_command");
+    const written=verify.ea_command||"";
+    if(written===cmd){
+      // Write confirmed!
+      log("✓ CONFIRMED in Supabase: "+written,"ok");
+      ws.textContent="✓ Written to Supabase! EA will execute within 5s."; ws.className="cm-status ok";
+      document.getElementById("cmdVal").textContent=written;
+      document.getElementById("cmdVal").style.color="#c084fc";
+      showToast(c.toast+" — EA executes within 5s");
+      log(c.log,"action");
+    } else {
+      // Write didn't stick
+      log("✗ Verify failed. In Supabase: '"+written+"' expected: '"+cmd+"'","err");
+      ws.textContent="✗ Write didn't stick. Supabase has: "+written; ws.className="cm-status fail";
+      showToast("❌ Write failed — check Activity Log");
     }
-    log(cfg.logMsg+" ✓ ["+cmd+"]","action");
-    showToast(cfg.toast);
-    // Auto-clear after 10s so old commands don't replay on EA restart
+    // Auto-clear after 10s
     setTimeout(async()=>{
-      try{await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}?id=eq.1`,{method:"PATCH",headers:HEADERS,body:JSON.stringify({ea_command:""})})}catch(e){}
+      try{await sbPatch({ea_command:""})}catch(e){}
+      document.getElementById("cmdVal").textContent="(empty — no command pending)";
+      document.getElementById("cmdVal").style.color="#333";
+      ws.textContent=""; ws.className="cm-status";
     },10000);
-  }catch(e){log("❌ Action failed: "+e.message,"err");showToast("❌ "+e.message)}
-  isBusy=false;if(cmdColumnOk)setActionButtonsEnabled(true);
+  }catch(e){
+    log("✗ Action failed: "+e.message,"err");
+    ws.textContent="✗ Failed: "+e.message; ws.className="cm-status fail";
+    showToast("❌ "+e.message);
+  }
+  busy=false; setBtnsEnabled(true);
 }
 
 document.getElementById("confirmModal").addEventListener("click",function(e){if(e.target===this)closeConfirm()});
 
+// ── Render ────────────────────────────────────────────────────────────────────
 function renderState(s){
   const c=s?"on":"off";
   document.getElementById("statusPill").className="status-pill "+c;
@@ -367,76 +386,65 @@ function log(msg,type="info"){
   el.className="log-entry";
   el.innerHTML=`<span class="ts">${now}</span><span class="msg ${type}">${msg}</span>`;
   box.insertBefore(el,box.firstChild);
-  while(box.children.length>50)box.removeChild(box.lastChild);
+  while(box.children.length>60)box.removeChild(box.lastChild);
 }
-let toastTimer;
+let tt;
 function showToast(msg){
   const t=document.getElementById("toast");
   t.textContent=msg;t.classList.add("show");
-  clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove("show"),4500);
+  clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("show"),5000);
 }
 
-let deferredPrompt=null;
-window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;document.getElementById("installBanner").classList.add("show")});
-document.getElementById("installBtn").addEventListener("click",async()=>{
-  if(!deferredPrompt)return;
-  deferredPrompt.prompt();const{outcome}=await deferredPrompt.userChoice;
-  if(outcome==="accepted"){log("App installed ✓","info");showToast("✅ App installed!")}
-  deferredPrompt=null;document.getElementById("installBanner").classList.remove("show");
-});
+// ── PWA ───────────────────────────────────────────────────────────────────────
+let dp=null;
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();dp=e;document.getElementById("installBanner").classList.add("show")});
+document.getElementById("installBtn").addEventListener("click",async()=>{if(!dp)return;dp.prompt();const{outcome}=await dp.userChoice;if(outcome==="accepted"){log("App installed","info");showToast("✅ Installed!")}dp=null;document.getElementById("installBanner").classList.remove("show")});
 document.getElementById("dismissInstall").addEventListener("click",()=>document.getElementById("installBanner").classList.remove("show"));
-window.addEventListener("appinstalled",()=>{document.getElementById("installBanner").classList.remove("show");log("App installed successfully","info")});
-
+window.addEventListener("appinstalled",()=>{document.getElementById("installBanner").classList.remove("show");log("App installed","info")});
 if("serviceWorker" in navigator)navigator.serviceWorker.register("/sw.js").catch(()=>{});
 
-const PASSWORD_HASH="a08d63bbfa6fd80e2c6d1da1a2ea78268b11722e1dbd0a8b1ed7ed6ce9c3dbe4";
-let isAuthenticated=false;
-
-async function sha256(str){
-  const buf=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(str));
-  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join("");
-}
-async function attemptLogin(){
-  const btn=document.getElementById("loginBtn"),input=document.getElementById("pwdInput"),
-        err=document.getElementById("loginError"),pwd=input.value;
+// ── Auth ──────────────────────────────────────────────────────────────────────
+const PH="a08d63bbfa6fd80e2c6d1da1a2ea78268b11722e1dbd0a8b1ed7ed6ce9c3dbe4";
+let auth=false;
+async function sha256(s){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,"0")).join("")}
+async function tryLogin(){
+  const btn=document.getElementById("loginBtn"),inp=document.getElementById("pwdInput"),
+        err=document.getElementById("loginError"),pwd=inp.value;
   if(!pwd)return;
   btn.disabled=true;btn.textContent="CHECKING...";err.textContent="";
-  const hash=await sha256(pwd);
-  if(hash===PASSWORD_HASH){
-    isAuthenticated=true;sessionStorage.setItem("bulledger_auth","1");
+  const h=await sha256(pwd);
+  if(h===PH){
+    auth=true;sessionStorage.setItem("bulledger_auth","1");
     document.getElementById("loginOverlay").classList.add("hidden");
     document.getElementById("logoutBtn").style.display="block";
-    fetchStatus().then(()=>log("Connected to Supabase ✓","info"));
-    setInterval(()=>{if(!isBusy)fetchStatus()},10000);
+    fetchStatus().then(()=>log("Connected ✓","info"));
+    setInterval(()=>{if(!busy)fetchStatus()},8000);
   }else{
-    input.value="";input.classList.add("shake");
-    err.textContent="Incorrect password. Try again.";
-    setTimeout(()=>input.classList.remove("shake"),400);
+    inp.value="";inp.classList.add("shake");err.textContent="Incorrect password. Try again.";
+    setTimeout(()=>inp.classList.remove("shake"),400);
     btn.disabled=false;btn.textContent="UNLOCK";
     btn.disabled=true;setTimeout(()=>{btn.disabled=false},2000);
   }
 }
-function logout(){
-  sessionStorage.removeItem("bulledger_auth");isAuthenticated=false;
+function doLogout(){
+  sessionStorage.removeItem("bulledger_auth");auth=false;
   document.getElementById("loginOverlay").classList.remove("hidden");
   document.getElementById("logoutBtn").style.display="none";
   document.getElementById("pwdInput").value="";
   document.getElementById("loginError").textContent="";
-  currentState=null;cmdColumnOk=false;
-  setActionButtonsEnabled(false);
-  document.getElementById("cmdStatus").textContent="Checking...";
-  document.getElementById("cmdStatus").style.color="#555";
+  state=null;setBtnsEnabled(false);
 }
-document.getElementById("loginBtn").addEventListener("click",attemptLogin);
-document.getElementById("pwdInput").addEventListener("keydown",e=>{if(e.key==="Enter")attemptLogin()});
-document.getElementById("logoutBtn").addEventListener("click",logout);
+document.getElementById("loginBtn").addEventListener("click",tryLogin);
+document.getElementById("pwdInput").addEventListener("keydown",e=>{if(e.key==="Enter")tryLogin()});
+document.getElementById("logoutBtn").addEventListener("click",doLogout);
 
+// ── Boot ──────────────────────────────────────────────────────────────────────
 if(sessionStorage.getItem("bulledger_auth")==="1"){
-  isAuthenticated=true;
+  auth=true;
   document.getElementById("loginOverlay").classList.add("hidden");
   document.getElementById("logoutBtn").style.display="block";
-  fetchStatus().then(()=>log("Connected to Supabase ✓","info"));
-  setInterval(()=>{if(!isBusy)fetchStatus()},10000);
+  fetchStatus().then(()=>log("Connected ✓","info"));
+  setInterval(()=>{if(!busy)fetchStatus()},8000);
 }
 </script>
 </body>
