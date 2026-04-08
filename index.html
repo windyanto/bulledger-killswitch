@@ -59,19 +59,16 @@ body{display:flex;flex-direction:column;align-items:center;padding:env(safe-area
 .ab-text{display:flex;flex-direction:column;align-items:flex-start;gap:1px;flex:1}
 .ab-title{font-size:12px;font-weight:800}
 .ab-sub{font-size:10px;font-weight:400;opacity:.6;text-transform:none;letter-spacing:0}
-/* cmd monitor */
 .cmd-monitor{width:100%;background:#0a0a14;border:1px solid #1a1a2e;border-radius:10px;padding:9px 13px;font-size:10px;font-family:monospace;display:flex;flex-direction:column;gap:3px}
-.cmd-monitor .cm-label{color:#333;text-transform:uppercase;letter-spacing:.8px;font-size:9px;font-family:sans-serif;margin-bottom:1px}
-.cmd-monitor .cm-val{color:#555;word-break:break-all}
-.cmd-monitor .cm-val.active{color:#c084fc}
-.cmd-monitor .cm-status{font-size:9px;font-family:sans-serif;margin-top:2px}
-.cmd-monitor .cm-status.ok{color:var(--green)}
-.cmd-monitor .cm-status.fail{color:var(--red)}
-.cmd-monitor .cm-status.wait{color:var(--gold)}
-#confirmModal{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;pointer-events:none;transition:opacity .2s}
+.cm-lbl{color:#333;text-transform:uppercase;letter-spacing:.8px;font-size:9px;font-family:sans-serif;margin-bottom:1px}
+.cm-val{color:#555;word-break:break-all}
+.cm-val.active{color:#c084fc}
+.cm-st{font-size:9px;font-family:sans-serif;margin-top:2px}
+.cm-st.ok{color:var(--green)}.cm-st.fail{color:var(--red)}.cm-st.wait{color:var(--gold)}
+#confirmModal{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;pointer-events:none;transition:opacity .2s}
 #confirmModal.show{opacity:1;pointer-events:all}
 .confirm-box{background:#16161f;border:1px solid #2a2a3a;border-radius:20px;padding:28px 24px;width:100%;max-width:340px;display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center}
-.confirm-icon{font-size:42px}.confirm-title{font-size:16px;font-weight:900;color:#fff;letter-spacing:1px}.confirm-sub{font-size:12px;color:#666;line-height:1.6}
+.confirm-icon{font-size:42px}.confirm-title{font-size:16px;font-weight:900;color:#fff;letter-spacing:1px}.confirm-sub{font-size:12px;color:#777;line-height:1.6}
 .confirm-btns{display:flex;gap:10px;width:100%}
 .confirm-cancel{flex:1;padding:13px;background:#1e1e2e;border:1px solid #2a2a3a;border-radius:12px;color:#666;font-size:13px;font-weight:700;cursor:pointer}
 .confirm-ok{flex:1;padding:13px;border:none;border-radius:12px;color:#fff;font-size:13px;font-weight:800;cursor:pointer;transition:opacity .2s}
@@ -119,18 +116,20 @@ body{display:flex;flex-direction:column;align-items:center;padding:env(safe-area
 </head>
 <body>
 
+<!-- Confirm modal -->
 <div id="confirmModal">
   <div class="confirm-box">
-    <div class="confirm-icon" id="confirmIcon">⚠️</div>
-    <div class="confirm-title" id="confirmTitle">Are you sure?</div>
-    <div class="confirm-sub" id="confirmSub">This will affect ALL connected EA accounts.</div>
+    <div class="confirm-icon" id="ci">⚠️</div>
+    <div class="confirm-title" id="ct">Are you sure?</div>
+    <div class="confirm-sub" id="cs">This will affect ALL connected EA accounts.</div>
     <div class="confirm-btns">
-      <button class="confirm-cancel" onclick="closeConfirm()">Cancel</button>
-      <button class="confirm-ok red" id="confirmOkBtn" onclick="confirmAction()">Confirm</button>
+      <button class="confirm-cancel" id="cancelBtn">Cancel</button>
+      <button class="confirm-ok red" id="okBtn">Confirm</button>
     </div>
   </div>
 </div>
 
+<!-- Login overlay -->
 <div id="loginOverlay">
   <div class="login-box">
     <div class="login-logo">
@@ -151,10 +150,7 @@ body{display:flex;flex-direction:column;align-items:center;padding:env(safe-area
 
 <div id="installBanner">
   <span class="ib-icon">📲</span>
-  <div class="ib-text">
-    <div class="ib-title">Install as App</div>
-    <div class="ib-sub">Add to home screen for quick access</div>
-  </div>
+  <div class="ib-text"><div class="ib-title">Install as App</div><div class="ib-sub">Add to home screen for quick access</div></div>
   <button class="ib-btn" id="installBtn">Install</button>
   <button class="ib-close" id="dismissInstall">✕</button>
 </div>
@@ -163,7 +159,7 @@ body{display:flex;flex-direction:column;align-items:center;padding:env(safe-area
   <img src="icon-192.png" alt="Bulledger" style="width:64px;height:64px;border-radius:12px;margin-bottom:8px;">
   <h1>BULLEDGER</h1>
   <p>Kill Switch — Remote EA Control</p>
-  <span class="ver">DASHBOARD v2.31</span>
+  <span class="ver">DASHBOARD v2.32</span>
 </div>
 
 <div class="card">
@@ -180,25 +176,25 @@ body{display:flex;flex-direction:column;align-items:center;padding:env(safe-area
 
   <div class="action-section">
     <div class="action-title">Quick Actions — All Accounts</div>
-    <button class="action-btn close-all" id="btnCloseAll" onclick="askConfirm('closeAll')" disabled>
+    <button class="action-btn close-all" id="btnCloseAll" onclick="showConfirm('closeAll')" disabled>
       <span class="ab-icon">🔴</span>
       <div class="ab-text"><span class="ab-title">Close All Positions</span><span class="ab-sub">Closes all open BUY &amp; SELL trades immediately</span></div>
     </button>
-    <button class="action-btn del-buy" id="btnDelBuy" onclick="askConfirm('deleteBuy')" disabled>
+    <button class="action-btn del-buy" id="btnDelBuy" onclick="showConfirm('deleteBuy')" disabled>
       <span class="ab-icon">🔵</span>
       <div class="ab-text"><span class="ab-title">Delete Buy Stops Only</span><span class="ab-sub">Removes pending BUY STOP orders, keeps SELL STOPs</span></div>
     </button>
-    <button class="action-btn del-sell" id="btnDelSell" onclick="askConfirm('deleteSell')" disabled>
+    <button class="action-btn del-sell" id="btnDelSell" onclick="showConfirm('deleteSell')" disabled>
       <span class="ab-icon">🟠</span>
       <div class="ab-text"><span class="ab-title">Delete Sell Stops Only</span><span class="ab-sub">Removes pending SELL STOP orders, keeps BUY STOPs</span></div>
     </button>
   </div>
 
-  <!-- Live command monitor: shows exactly what's in Supabase ea_command right now -->
+  <!-- Live monitor: shows what's in ea_command in Supabase right now -->
   <div class="cmd-monitor">
-    <div class="cm-label">Live: ea_command in Supabase right now</div>
+    <div class="cm-lbl">Supabase ea_command (live)</div>
     <div class="cm-val" id="cmdVal">(loading...)</div>
-    <div class="cm-status" id="cmdWriteStatus"></div>
+    <div class="cm-st" id="cmdSt"></div>
   </div>
 
   <div class="note-section">
@@ -216,235 +212,300 @@ body{display:flex;flex-direction:column;align-items:center;padding:env(safe-area
   <div class="log-section">
     <h3>Activity Log</h3>
     <div class="log-box" id="logBox">
-      <div class="log-entry"><span class="ts">--:--:--</span><span class="msg info">Connecting to Supabase...</span></div>
+      <div class="log-entry"><span class="ts">--:--:--</span><span class="msg info">Starting up...</span></div>
     </div>
   </div>
 </div>
 
-<div class="footer">BULLEDGER PRO · www.bulledger.com · Dashboard v2.31</div>
+<div class="footer">BULLEDGER PRO · www.bulledger.com · Dashboard v2.32</div>
 <div class="toast" id="toast"></div>
 
 <script>
 // ── Config ────────────────────────────────────────────────────────────────────
-const SB   = "https://wixbjyolwrrvvvhwkkyw.supabase.co";
-const KEY  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndpeGJqeW9sd3JydnZ2aHdra3l3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5MDIyMjYsImV4cCI6MjA4NzQ3ODIyNn0.VsF9brbwNoXLVf_5MQgiIV_xJhGq5v8V-Afh6-t56DQ";
-const TBL  = "ea_control";
-const HDR  = {"apikey":KEY,"Authorization":"Bearer "+KEY,"Content-Type":"application/json","Prefer":"return=representation"};
+const SB  = "https://wixbjyolwrrvvvhwkkyw.supabase.co";
+const KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndpeGJqeW9sd3JydnZ2aHdra3l3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5MDIyMjYsImV4cCI6MjA4NzQ3ODIyNn0.VsF9brbwNoXLVf_5MQgiIV_xJhGq5v8V-Afh6-t56DQ";
+const TBL = "ea_control";
+const H   = {"apikey":KEY,"Authorization":"Bearer "+KEY,"Content-Type":"application/json","Prefer":"return=representation"};
 
 // ── State ─────────────────────────────────────────────────────────────────────
-let state=null, busy=false, pending=null;
+let tradingState = null;
+let busy = false;
 
-// ── supabase helpers ──────────────────────────────────────────────────────────
-async function sbGet(select){
-  const r=await fetch(`${SB}/rest/v1/${TBL}?id=eq.1&select=${select}`,{headers:HDR});
-  if(!r.ok){const t=await r.text();throw new Error("GET HTTP "+r.status+": "+t)}
-  const d=await r.json();
-  if(!d||!d.length)throw new Error("No row in ea_control");
+// ── Helpers ───────────────────────────────────────────────────────────────────
+async function sbGet(cols) {
+  const r = await fetch(`${SB}/rest/v1/${TBL}?id=eq.1&select=${cols}`, {headers:H});
+  if (!r.ok) { const t = await r.text(); throw new Error("GET " + r.status + ": " + t); }
+  const d = await r.json();
+  if (!d || !d.length) throw new Error("No row found in ea_control");
   return d[0];
 }
-async function sbPatch(obj){
-  const r=await fetch(`${SB}/rest/v1/${TBL}?id=eq.1`,{method:"PATCH",headers:HDR,body:JSON.stringify(obj)});
-  if(!r.ok){const t=await r.text();throw new Error("PATCH HTTP "+r.status+": "+t)}
-  return await r.json();
+async function sbPatch(obj) {
+  const r = await fetch(`${SB}/rest/v1/${TBL}?id=eq.1`, {method:"PATCH", headers:H, body:JSON.stringify(obj)});
+  if (!r.ok) { const t = await r.text(); throw new Error("PATCH " + r.status + ": " + t); }
 }
 
-// ── fetchStatus ───────────────────────────────────────────────────────────────
-async function fetchStatus(){
-  try{
-    const row=await sbGet("trading_enabled,updated_at,note,ea_command");
-    state=row.trading_enabled;
-    renderState(state);
-    setBtnsEnabled(true);
-    document.getElementById("lastChanged").textContent=row.updated_at?new Date(row.updated_at).toLocaleString():"—";
-    document.getElementById("lastNote").textContent=row.note||"—";
-    document.getElementById("connStatus").textContent="✓ Connected";
-    document.getElementById("connStatus").style.color="#22c55e";
-    // Show live ea_command value
-    const cv=row.ea_command||"";
-    const el=document.getElementById("cmdVal");
-    el.textContent=cv===""?'(empty — no command pending)':cv;
-    el.className="cm-val"+(cv?"":" ");
-    if(cv) el.style.color="#c084fc"; else el.style.color="#333";
-  }catch(e){
-    document.getElementById("connStatus").textContent="⚠ "+e.message;
-    document.getElementById("connStatus").style.color="#f59e0b";
-    document.getElementById("cmdVal").textContent="Error: "+e.message;
-    document.getElementById("cmdVal").style.color="#f59e0b";
-    log("fetchStatus error: "+e.message,"err");
+// ── Fetch status ──────────────────────────────────────────────────────────────
+async function fetchStatus() {
+  try {
+    const row = await sbGet("trading_enabled,updated_at,note,ea_command");
+    tradingState = row.trading_enabled;
+    renderState(tradingState);
+    enableActionBtns(true);
+    document.getElementById("lastChanged").textContent = row.updated_at ? new Date(row.updated_at).toLocaleString() : "—";
+    document.getElementById("lastNote").textContent    = row.note || "—";
+    document.getElementById("connStatus").textContent  = "✓ Connected";
+    document.getElementById("connStatus").style.color  = "#22c55e";
+    // Show live ea_command
+    const cv = row.ea_command || "";
+    const el = document.getElementById("cmdVal");
+    if (cv === "") {
+      el.textContent = "(empty — ready for next command)";
+      el.className = "cm-val";
+      el.style.color = "#333";
+    } else {
+      el.textContent = cv;
+      el.className = "cm-val active";
+    }
+  } catch(e) {
+    document.getElementById("connStatus").textContent = "⚠ " + e.message;
+    document.getElementById("connStatus").style.color = "#f59e0b";
+    log("Connection error: " + e.message, "err");
   }
 }
 
-function setBtnsEnabled(v){["btnCloseAll","btnDelBuy","btnDelSell"].forEach(id=>{document.getElementById(id).disabled=!v})}
+function enableActionBtns(v) {
+  ["btnCloseAll","btnDelBuy","btnDelSell"].forEach(id => {
+    document.getElementById(id).disabled = !v;
+  });
+}
 
 // ── Main toggle ───────────────────────────────────────────────────────────────
-async function handleToggle(){
-  if(busy||state===null)return;
-  const ns=!state, note=document.getElementById("noteInput").value.trim()||null;
-  busy=true; setLoadingUI(); setBtnsEnabled(false);
-  try{
-    await sbPatch({trading_enabled:ns,updated_at:new Date().toISOString(),note});
-    state=ns; renderState(state);
-    document.getElementById("lastChanged").textContent=new Date().toLocaleString();
-    document.getElementById("lastNote").textContent=note||"—";
-    document.getElementById("noteInput").value="";
-    log("Trading "+(ns?"ENABLED":"DISABLED")+(note?` — "${note}"`:""),ns?"on":"off");
-    showToast(ns?"✅ Trading ENABLED — all EAs activate within 5s":"🛑 Trading DISABLED — all EAs stop within 5s");
-  }catch(e){log("Toggle failed: "+e.message,"err");showToast("❌ "+e.message);renderState(state)}
-  busy=false; setBtnsEnabled(true);
+async function handleToggle() {
+  if (busy || tradingState === null) return;
+  const ns = !tradingState;
+  const note = document.getElementById("noteInput").value.trim() || null;
+  busy = true; setLoadingUI(); enableActionBtns(false);
+  try {
+    await sbPatch({trading_enabled: ns, updated_at: new Date().toISOString(), note: note});
+    tradingState = ns; renderState(tradingState);
+    document.getElementById("lastChanged").textContent = new Date().toLocaleString();
+    document.getElementById("lastNote").textContent    = note || "—";
+    document.getElementById("noteInput").value         = "";
+    log("Trading " + (ns ? "ENABLED" : "DISABLED") + (note ? ` — "${note}"` : ""), ns ? "on" : "off");
+    showToast(ns ? "✅ Trading ENABLED — all EAs active within 5s" : "🛑 Trading DISABLED — all EAs stop within 5s");
+  } catch(e) {
+    log("Toggle failed: " + e.message, "err");
+    showToast("❌ " + e.message);
+    renderState(tradingState);
+  }
+  busy = false; enableActionBtns(true);
 }
 
-// ── Action buttons ────────────────────────────────────────────────────────────
-const CFG={
-  closeAll: {cmd:"close_all",  icon:"🔴",title:"Close All Positions?",  ok:"red",   okTxt:"Yes, Close All",        toast:"🔴 Close All sent",         log:"Close All sent"},
-  deleteBuy:{cmd:"delete_buy", icon:"🔵",title:"Delete All Buy Stops?", ok:"blue",  okTxt:"Yes, Delete Buy Stops", toast:"🔵 Delete Buy Stops sent",  log:"Delete Buy Stops sent"},
-  deleteSell:{cmd:"delete_sell",icon:"🟠",title:"Delete All Sell Stops?",ok:"orange",okTxt:"Yes, Delete Sell Stops",toast:"🟠 Delete Sell Stops sent", log:"Delete Sell Stops sent"}
+// ── Action button confirm flow ────────────────────────────────────────────────
+// CFG maps action name → display config
+const CFG = {
+  closeAll:   {cmd:"close_all",   icon:"🔴", title:"Close All Positions?",   okCls:"red",    okTxt:"Yes, Close All",         toast:"🔴 Close All sent — EA executes within 5s",         logMsg:"Close All Positions sent"},
+  deleteBuy:  {cmd:"delete_buy",  icon:"🔵", title:"Delete All Buy Stops?",  okCls:"blue",   okTxt:"Yes, Delete Buy Stops",  toast:"🔵 Delete Buy Stops sent — EA executes within 5s",  logMsg:"Delete Buy Stops sent"},
+  deleteSell: {cmd:"delete_sell", icon:"🟠", title:"Delete All Sell Stops?", okCls:"orange", okTxt:"Yes, Delete Sell Stops", toast:"🟠 Delete Sell Stops sent — EA executes within 5s", logMsg:"Delete Sell Stops sent"},
 };
 
-function askConfirm(a){
-  if(busy)return;
-  pending=a;
-  const c=CFG[a];
-  document.getElementById("confirmIcon").textContent=c.icon;
-  document.getElementById("confirmTitle").textContent=c.title;
-  document.getElementById("confirmSub").textContent="This will affect ALL connected EA accounts. Are you sure?";
-  const btn=document.getElementById("confirmOkBtn");
-  btn.textContent=c.okTxt; btn.className="confirm-ok "+c.ok;
+// Step 1: button clicked → show confirm modal
+// We store the action name on the OK button's dataset so closeConfirm cannot interfere
+function showConfirm(action) {
+  if (busy) return;
+  const c = CFG[action];
+  document.getElementById("ci").textContent  = c.icon;
+  document.getElementById("ct").textContent  = c.title;
+  document.getElementById("cs").textContent  = "This will affect ALL connected EA accounts. Are you sure?";
+  const okBtn = document.getElementById("okBtn");
+  okBtn.textContent  = c.okTxt;
+  okBtn.className    = "confirm-ok " + c.okCls;
+  okBtn.dataset.action = action;   // ← action stored HERE, not in a shared variable
   document.getElementById("confirmModal").classList.add("show");
 }
-function closeConfirm(){document.getElementById("confirmModal").classList.remove("show");pending=null}
 
-async function confirmAction(){
-  closeConfirm();
-  if(!pending||busy)return;
-  const a=pending; pending=null;
-  const c=CFG[a];
-  busy=true; setBtnsEnabled(false);
-  const ts=Math.floor(Date.now()/1000);
-  const cmd=c.cmd+":"+ts;
-  const ws=document.getElementById("cmdWriteStatus");
-  ws.textContent="Writing command to Supabase..."; ws.className="cm-status wait";
-  log("Writing: "+cmd,"action");
-  try{
-    // Step 1: Write the command
-    await sbPatch({ea_command:cmd});
-    log("PATCH succeeded. Verifying...","action");
-    ws.textContent="Verifying write..."; ws.className="cm-status wait";
-    // Step 2: Read it back immediately to confirm the write worked
-    await new Promise(r=>setTimeout(r,800));
-    const verify=await sbGet("ea_command");
-    const written=verify.ea_command||"";
-    if(written===cmd){
-      // Write confirmed!
-      log("✓ CONFIRMED in Supabase: "+written,"ok");
-      ws.textContent="✓ Written to Supabase! EA will execute within 5s."; ws.className="cm-status ok";
-      document.getElementById("cmdVal").textContent=written;
-      document.getElementById("cmdVal").style.color="#c084fc";
-      showToast(c.toast+" — EA executes within 5s");
-      log(c.log,"action");
+// Step 2: Cancel clicked → just hide modal, nothing else
+document.getElementById("cancelBtn").addEventListener("click", function() {
+  document.getElementById("confirmModal").classList.remove("show");
+});
+
+// Step 3: OK clicked → read action from button, hide modal, execute
+// The key fix: action is read from okBtn.dataset.action, NOT from a shared
+// variable that could be nulled by the cancel/close path.
+document.getElementById("okBtn").addEventListener("click", async function() {
+  const action = this.dataset.action;          // read action from button attribute
+  document.getElementById("confirmModal").classList.remove("show"); // hide modal
+  if (!action || busy) return;
+  this.dataset.action = "";                    // clear so double-click is safe
+  await executeAction(action);
+});
+
+// Close modal when tapping the dark backdrop
+document.getElementById("confirmModal").addEventListener("click", function(e) {
+  if (e.target === this) document.getElementById("confirmModal").classList.remove("show");
+});
+
+// Step 4: Do the actual Supabase write with verification
+async function executeAction(action) {
+  const c = CFG[action];
+  if (!c) { log("Unknown action: " + action, "err"); return; }
+
+  busy = true; enableActionBtns(false);
+  const ts  = Math.floor(Date.now() / 1000);
+  const cmd = c.cmd + ":" + ts;
+
+  const st = document.getElementById("cmdSt");
+  st.textContent = "Writing " + cmd + " ..."; st.className = "cm-st wait";
+  log("Writing command: " + cmd, "action");
+
+  try {
+    // Write to Supabase
+    await sbPatch({ea_command: cmd});
+    log("PATCH succeeded ✓", "action");
+    st.textContent = "Verifying..."; st.className = "cm-st wait";
+
+    // Read back after 1s to confirm
+    await new Promise(r => setTimeout(r, 1000));
+    const row = await sbGet("ea_command");
+    const confirmed = row.ea_command || "";
+
+    const cv = document.getElementById("cmdVal");
+    if (confirmed === cmd) {
+      cv.textContent = confirmed; cv.className = "cm-val active";
+      st.textContent = "✓ CONFIRMED in Supabase — EA will execute within 5s"; st.className = "cm-st ok";
+      log("✓ CONFIRMED: " + confirmed, "ok");
+      showToast(c.toast);
     } else {
-      // Write didn't stick
-      log("✗ Verify failed. In Supabase: '"+written+"' expected: '"+cmd+"'","err");
-      ws.textContent="✗ Write didn't stick. Supabase has: "+written; ws.className="cm-status fail";
-      showToast("❌ Write failed — check Activity Log");
+      cv.textContent = "Got: " + confirmed; cv.className = "cm-val";
+      st.textContent = "✗ Verify failed. Supabase has: '" + confirmed + "'"; st.className = "cm-st fail";
+      log("✗ Verify mismatch. Expected: " + cmd + " Got: " + confirmed, "err");
+      showToast("❌ Write failed — see activity log");
     }
-    // Auto-clear after 10s
-    setTimeout(async()=>{
-      try{await sbPatch({ea_command:""})}catch(e){}
-      document.getElementById("cmdVal").textContent="(empty — no command pending)";
-      document.getElementById("cmdVal").style.color="#333";
-      ws.textContent=""; ws.className="cm-status";
-    },10000);
-  }catch(e){
-    log("✗ Action failed: "+e.message,"err");
-    ws.textContent="✗ Failed: "+e.message; ws.className="cm-status fail";
-    showToast("❌ "+e.message);
-  }
-  busy=false; setBtnsEnabled(true);
-}
 
-document.getElementById("confirmModal").addEventListener("click",function(e){if(e.target===this)closeConfirm()});
+    // Auto-clear after 12s so old commands don't replay on EA restart
+    setTimeout(async () => {
+      try {
+        await sbPatch({ea_command: ""});
+        cv.textContent = "(empty — ready for next command)"; cv.className = "cm-val"; cv.style.color = "#333";
+        st.textContent = "Command cleared"; st.className = "cm-st";
+        log("Command auto-cleared", "info");
+      } catch(e) { /* best-effort */ }
+    }, 12000);
+
+  } catch(e) {
+    log("✗ Action failed: " + e.message, "err");
+    document.getElementById("cmdSt").textContent = "✗ Failed: " + e.message;
+    document.getElementById("cmdSt").className = "cm-st fail";
+    showToast("❌ " + e.message);
+  }
+
+  busy = false; enableActionBtns(true);
+}
 
 // ── Render ────────────────────────────────────────────────────────────────────
-function renderState(s){
-  const c=s?"on":"off";
-  document.getElementById("statusPill").className="status-pill "+c;
-  document.getElementById("statusDot").className="dot "+c;
-  document.getElementById("statusText").textContent=s?"TRADING ON":"TRADING OFF";
-  document.getElementById("toggleBtn").className="toggle-btn "+c;
-  document.getElementById("btnIcon").textContent=s?"✅":"🛑";
-  document.getElementById("btnLabel").textContent=s?"TAP TO DISABLE":"TAP TO ENABLE";
+function renderState(s) {
+  const c = s ? "on" : "off";
+  document.getElementById("statusPill").className  = "status-pill " + c;
+  document.getElementById("statusDot").className   = "dot " + c;
+  document.getElementById("statusText").textContent = s ? "TRADING ON" : "TRADING OFF";
+  document.getElementById("toggleBtn").className   = "toggle-btn " + c;
+  document.getElementById("btnIcon").textContent   = s ? "✅" : "🛑";
+  document.getElementById("btnLabel").textContent  = s ? "TAP TO DISABLE" : "TAP TO ENABLE";
 }
-function setLoadingUI(){
-  ["statusPill","toggleBtn"].forEach(id=>{document.getElementById(id).className=id.includes("Pill")?"status-pill loading":"toggle-btn loading"});
-  document.getElementById("statusDot").className="dot loading";
-  document.getElementById("statusText").textContent="UPDATING...";
-  document.getElementById("btnIcon").textContent="⏳";
-  document.getElementById("btnLabel").textContent="PLEASE WAIT";
+function setLoadingUI() {
+  document.getElementById("statusPill").className  = "status-pill loading";
+  document.getElementById("toggleBtn").className   = "toggle-btn loading";
+  document.getElementById("statusDot").className   = "dot loading";
+  document.getElementById("statusText").textContent = "UPDATING...";
+  document.getElementById("btnIcon").textContent   = "⏳";
+  document.getElementById("btnLabel").textContent  = "PLEASE WAIT";
 }
-function log(msg,type="info"){
-  const box=document.getElementById("logBox"),now=new Date().toTimeString().slice(0,8),el=document.createElement("div");
-  el.className="log-entry";
-  el.innerHTML=`<span class="ts">${now}</span><span class="msg ${type}">${msg}</span>`;
-  box.insertBefore(el,box.firstChild);
-  while(box.children.length>60)box.removeChild(box.lastChild);
+
+// ── Log ───────────────────────────────────────────────────────────────────────
+function log(msg, type) {
+  type = type || "info";
+  const box = document.getElementById("logBox");
+  const now = new Date().toTimeString().slice(0,8);
+  const el  = document.createElement("div");
+  el.className = "log-entry";
+  el.innerHTML = '<span class="ts">' + now + '</span><span class="msg ' + type + '">' + msg + '</span>';
+  box.insertBefore(el, box.firstChild);
+  while (box.children.length > 60) box.removeChild(box.lastChild);
 }
-let tt;
-function showToast(msg){
-  const t=document.getElementById("toast");
-  t.textContent=msg;t.classList.add("show");
-  clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("show"),5000);
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+var toastTimer;
+function showToast(msg) {
+  var t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ t.classList.remove("show"); }, 5000);
 }
 
 // ── PWA ───────────────────────────────────────────────────────────────────────
-let dp=null;
-window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();dp=e;document.getElementById("installBanner").classList.add("show")});
-document.getElementById("installBtn").addEventListener("click",async()=>{if(!dp)return;dp.prompt();const{outcome}=await dp.userChoice;if(outcome==="accepted"){log("App installed","info");showToast("✅ Installed!")}dp=null;document.getElementById("installBanner").classList.remove("show")});
-document.getElementById("dismissInstall").addEventListener("click",()=>document.getElementById("installBanner").classList.remove("show"));
-window.addEventListener("appinstalled",()=>{document.getElementById("installBanner").classList.remove("show");log("App installed","info")});
-if("serviceWorker" in navigator)navigator.serviceWorker.register("/sw.js").catch(()=>{});
+var dp = null;
+window.addEventListener("beforeinstallprompt", function(e){ e.preventDefault(); dp=e; document.getElementById("installBanner").classList.add("show"); });
+document.getElementById("installBtn").addEventListener("click", async function(){
+  if(!dp) return;
+  dp.prompt();
+  var r = await dp.userChoice;
+  if(r.outcome==="accepted"){ log("App installed","info"); showToast("✅ App installed!"); }
+  dp=null; document.getElementById("installBanner").classList.remove("show");
+});
+document.getElementById("dismissInstall").addEventListener("click", function(){ document.getElementById("installBanner").classList.remove("show"); });
+window.addEventListener("appinstalled", function(){ document.getElementById("installBanner").classList.remove("show"); log("Installed","info"); });
+
+if("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(function(){});
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
-const PH="a08d63bbfa6fd80e2c6d1da1a2ea78268b11722e1dbd0a8b1ed7ed6ce9c3dbe4";
-let auth=false;
-async function sha256(s){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,"0")).join("")}
-async function tryLogin(){
-  const btn=document.getElementById("loginBtn"),inp=document.getElementById("pwdInput"),
-        err=document.getElementById("loginError"),pwd=inp.value;
-  if(!pwd)return;
-  btn.disabled=true;btn.textContent="CHECKING...";err.textContent="";
-  const h=await sha256(pwd);
-  if(h===PH){
-    auth=true;sessionStorage.setItem("bulledger_auth","1");
+var PH = "a08d63bbfa6fd80e2c6d1da1a2ea78268b11722e1dbd0a8b1ed7ed6ce9c3dbe4";
+var authed = false;
+
+async function sha256(s) {
+  var b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
+  return Array.from(new Uint8Array(b)).map(function(x){ return x.toString(16).padStart(2,"0"); }).join("");
+}
+
+async function tryLogin() {
+  var btn=document.getElementById("loginBtn"), inp=document.getElementById("pwdInput"),
+      err=document.getElementById("loginError"), pwd=inp.value;
+  if(!pwd) return;
+  btn.disabled=true; btn.textContent="CHECKING..."; err.textContent="";
+  var h = await sha256(pwd);
+  if(h===PH) {
+    authed=true; sessionStorage.setItem("bulledger_auth","1");
     document.getElementById("loginOverlay").classList.add("hidden");
     document.getElementById("logoutBtn").style.display="block";
-    fetchStatus().then(()=>log("Connected ✓","info"));
-    setInterval(()=>{if(!busy)fetchStatus()},8000);
-  }else{
-    inp.value="";inp.classList.add("shake");err.textContent="Incorrect password. Try again.";
-    setTimeout(()=>inp.classList.remove("shake"),400);
-    btn.disabled=false;btn.textContent="UNLOCK";
-    btn.disabled=true;setTimeout(()=>{btn.disabled=false},2000);
+    fetchStatus().then(function(){ log("Connected to Supabase ✓","info"); });
+    setInterval(function(){ if(!busy) fetchStatus(); }, 8000);
+  } else {
+    inp.value=""; inp.classList.add("shake"); err.textContent="Incorrect password. Try again.";
+    setTimeout(function(){ inp.classList.remove("shake"); }, 400);
+    btn.disabled=false; btn.textContent="UNLOCK";
+    btn.disabled=true; setTimeout(function(){ btn.disabled=false; }, 2000);
   }
 }
-function doLogout(){
-  sessionStorage.removeItem("bulledger_auth");auth=false;
+
+function doLogout() {
+  sessionStorage.removeItem("bulledger_auth"); authed=false;
   document.getElementById("loginOverlay").classList.remove("hidden");
   document.getElementById("logoutBtn").style.display="none";
   document.getElementById("pwdInput").value="";
   document.getElementById("loginError").textContent="";
-  state=null;setBtnsEnabled(false);
+  tradingState=null; enableActionBtns(false);
 }
-document.getElementById("loginBtn").addEventListener("click",tryLogin);
-document.getElementById("pwdInput").addEventListener("keydown",e=>{if(e.key==="Enter")tryLogin()});
-document.getElementById("logoutBtn").addEventListener("click",doLogout);
+
+document.getElementById("loginBtn").addEventListener("click", tryLogin);
+document.getElementById("pwdInput").addEventListener("keydown", function(e){ if(e.key==="Enter") tryLogin(); });
+document.getElementById("logoutBtn").addEventListener("click", doLogout);
 
 // ── Boot ──────────────────────────────────────────────────────────────────────
-if(sessionStorage.getItem("bulledger_auth")==="1"){
-  auth=true;
+if(sessionStorage.getItem("bulledger_auth")==="1") {
+  authed=true;
   document.getElementById("loginOverlay").classList.add("hidden");
   document.getElementById("logoutBtn").style.display="block";
-  fetchStatus().then(()=>log("Connected ✓","info"));
-  setInterval(()=>{if(!busy)fetchStatus()},8000);
+  fetchStatus().then(function(){ log("Connected to Supabase ✓","info"); });
+  setInterval(function(){ if(!busy) fetchStatus(); }, 8000);
 }
 </script>
 </body>
