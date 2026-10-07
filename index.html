@@ -280,7 +280,7 @@ async function fetchStatus() {
 }
 
 function enableActionBtns(v) {
-  ["btnCloseAll","btnDelBuy","btnDelSell"].forEach(id => {
+  ["btnCloseAll","btnDelBuy","btnDelSell","btnResetFlags"].forEach(id => {
     document.getElementById(id).disabled = !v;
   });
 }
