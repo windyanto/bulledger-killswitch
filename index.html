@@ -55,6 +55,7 @@ body{display:flex;flex-direction:column;align-items:center;padding:env(safe-area
 .action-btn.close-all{background:rgba(239,68,68,.10);border-color:rgba(239,68,68,.35);color:#fca5a5}
 .action-btn.del-buy{background:rgba(59,130,246,.10);border-color:rgba(59,130,246,.35);color:#93c5fd}
 .action-btn.del-sell{background:rgba(249,115,22,.10);border-color:rgba(249,115,22,.35);color:#fdba74}
+.action-btn.reset{background:rgba(168,85,247,.10);border-color:rgba(168,85,247,.35);color:#d8b4fe}
 .ab-icon{font-size:18px;flex-shrink:0}
 .ab-text{display:flex;flex-direction:column;align-items:flex-start;gap:1px;flex:1}
 .ab-title{font-size:12px;font-weight:800}
@@ -76,6 +77,7 @@ body{display:flex;flex-direction:column;align-items:center;padding:env(safe-area
 .confirm-ok.red{background:linear-gradient(135deg,#b91c1c,#ef4444)}
 .confirm-ok.blue{background:linear-gradient(135deg,#1d4ed8,#3b82f6)}
 .confirm-ok.orange{background:linear-gradient(135deg,#c2410c,#f97316)}
+.confirm-ok.purple{background:linear-gradient(135deg,#6d28d9,#a855f7)}
 .note-section{width:100%}
 .note-section label{font-size:10px;color:#444;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:5px}
 .note-input{width:100%;background:#0e0e18;border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;padding:10px 13px;outline:none;transition:border-color .2s;-webkit-appearance:none}
@@ -159,7 +161,7 @@ body{display:flex;flex-direction:column;align-items:center;padding:env(safe-area
   <img src="icon-192.png" alt="Bulledger" style="width:64px;height:64px;border-radius:12px;margin-bottom:8px;">
   <h1>BULLEDGER</h1>
   <p>Kill Switch — Remote EA Control</p>
-  <span class="ver">DASHBOARD v2.32</span>
+  <span class="ver">DASHBOARD v2.37</span>
 </div>
 
 <div class="card">
@@ -187,6 +189,10 @@ body{display:flex;flex-direction:column;align-items:center;padding:env(safe-area
     <button class="action-btn del-sell" id="btnDelSell" onclick="showConfirm('deleteSell')" disabled>
       <span class="ab-icon">🟠</span>
       <div class="ab-text"><span class="ab-title">Delete Sell Stops Only</span><span class="ab-sub">Removes pending SELL STOP orders, keeps BUY STOPs</span></div>
+    </button>
+    <button class="action-btn reset" id="btnResetFlags" onclick="showConfirm('resetFlags')" disabled>
+      <span class="ab-icon">🔄</span>
+      <div class="ab-text"><span class="ab-title">Reset &amp; Re-check Orders</span><span class="ab-sub">Re-evaluates valid levels and re-places any missing orders</span></div>
     </button>
   </div>
 
@@ -217,7 +223,7 @@ body{display:flex;flex-direction:column;align-items:center;padding:env(safe-area
   </div>
 </div>
 
-<div class="footer">BULLEDGER PRO · www.bulledger.com · Dashboard v2.32</div>
+<div class="footer">BULLEDGER PRO · www.bulledger.com · Dashboard v2.37</div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -306,7 +312,8 @@ async function handleToggle() {
 const CFG = {
   closeAll:   {cmd:"close_all",   icon:"🔴", title:"Close All Positions?",   okCls:"red",    okTxt:"Yes, Close All",         toast:"🔴 Close All sent — EA executes within 5s",         logMsg:"Close All Positions sent"},
   deleteBuy:  {cmd:"delete_buy",  icon:"🔵", title:"Delete All Buy Stops?",  okCls:"blue",   okTxt:"Yes, Delete Buy Stops",  toast:"🔵 Delete Buy Stops sent — EA executes within 5s",  logMsg:"Delete Buy Stops sent"},
-  deleteSell: {cmd:"delete_sell", icon:"🟠", title:"Delete All Sell Stops?", okCls:"orange", okTxt:"Yes, Delete Sell Stops", toast:"🟠 Delete Sell Stops sent — EA executes within 5s", logMsg:"Delete Sell Stops sent"},
+  deleteSell:  {cmd:"delete_sell",  icon:"🟠", title:"Delete All Sell Stops?",      okCls:"orange", okTxt:"Yes, Delete Sell Stops",  toast:"🟠 Delete Sell Stops sent — EA executes within 5s",  logMsg:"Delete Sell Stops sent"},
+  resetFlags:  {cmd:"reset_flags",  icon:"🔄", title:"Reset & Re-check Orders?",      okCls:"purple", okTxt:"Yes, Reset & Re-check",   toast:"🔄 Reset sent — EA re-evaluates valid levels within 5s", logMsg:"Reset Flags sent"},
 };
 
 // Step 1: button clicked → show confirm modal
