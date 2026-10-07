@@ -114,6 +114,30 @@ body{display:flex;flex-direction:column;align-items:center;padding:env(safe-area
 #logoutBtn:hover{color:var(--red);border-color:var(--red)}
 .toast{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 20px);left:50%;transform:translateX(-50%);background:#100820;border:1px solid var(--purple);color:#d8b4fe;padding:10px 18px;border-radius:10px;font-size:12px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;max-width:90vw;text-align:center;white-space:normal}
 .toast.show{opacity:1}
+.level-section{width:100%;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.level1{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2)}
+.level2{background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.2)}
+.level3{background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2)}
+.level-header{display:flex;align-items:center;gap:8px}
+.level-badge{font-size:10px;font-weight:900;padding:3px 10px;border-radius:999px;letter-spacing:1px}
+.l1{background:rgba(239,68,68,.2);color:#fca5a5}
+.l2{background:rgba(59,130,246,.2);color:#93c5fd}
+.l3{background:rgba(34,197,94,.2);color:#86efac}
+.level-label{font-size:11px;color:#444;flex:1}
+.level-pill{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;font-size:10px;font-weight:800;letter-spacing:1px;border:1px solid transparent}
+.level-pill.on{background:rgba(34,197,94,.12);border-color:var(--green);color:var(--green)}
+.level-pill.off{background:rgba(239,68,68,.12);border-color:var(--red);color:var(--red)}
+.level-pill.loading{background:rgba(245,158,11,.10);border-color:var(--gold);color:var(--gold)}
+.level-toggle{width:100%;padding:12px;border-radius:12px;border:none;cursor:pointer;font-size:12px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .3s;touch-action:manipulation}
+.level-toggle.on{background:linear-gradient(135deg,#052e16,#16a34a);color:#86efac;box-shadow:0 0 20px rgba(34,197,94,.15)}
+.level-toggle.off{background:linear-gradient(135deg,#200000,#b91c1c);color:#fca5a5;box-shadow:0 0 20px rgba(239,68,68,.15)}
+.level-toggle.loading{background:#1a1a2e;color:#555;cursor:not-allowed}
+.level-toggle:not(.loading):active{transform:scale(.97)}
+.level-actions{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.level-actions .action-btn{padding:10px 8px}
+.level-actions .ab-title{font-size:11px}
+.level-actions .ab-sub{font-size:9px}
+.level-actions .ab-icon{font-size:14px}
 </style>
 </head>
 <body>
@@ -161,41 +185,69 @@ body{display:flex;flex-direction:column;align-items:center;padding:env(safe-area
   <img src="icon-192.png" alt="Bulledger" style="width:64px;height:64px;border-radius:12px;margin-bottom:8px;">
   <h1>BULLEDGER</h1>
   <p>Kill Switch — Remote EA Control</p>
-  <span class="ver">DASHBOARD v2.37</span>
+  <span class="ver">DASHBOARD v2.38</span>
 </div>
 
 <div class="card">
-  <div class="status-pill loading" id="statusPill">
-    <div class="dot loading" id="statusDot"></div>
-    <span id="statusText">LOADING...</span>
+
+  <!-- ══ LEVEL 1 ══════════════════════════════════════════════════ -->
+  <div class="level-section level1">
+    <div class="level-header">
+      <span class="level-badge l1">LEVEL 1</span>
+      <span class="level-label">Aggressive</span>
+      <div class="level-pill loading" id="pill1"><div class="dot loading" id="dot1"></div><span id="txt1">…</span></div>
+    </div>
+    <button class="level-toggle loading" id="tog1" onclick="handleToggle(1)"><span id="togIcon1">⏳</span><span id="togLbl1">LOADING</span></button>
+    <div class="level-actions">
+      <button class="action-btn close-all" id="btnCloseAll1" onclick="showConfirm('closeAll',1)" disabled><span class="ab-icon">🔴</span><div class="ab-text"><span class="ab-title">Close All</span><span class="ab-sub">Close open trades</span></div></button>
+      <button class="action-btn del-buy"   id="btnDelBuy1"   onclick="showConfirm('deleteBuy',1)" disabled><span class="ab-icon">🔵</span><div class="ab-text"><span class="ab-title">Del Buy Stops</span><span class="ab-sub">Remove BUY STOPs</span></div></button>
+      <button class="action-btn del-sell"  id="btnDelSell1"  onclick="showConfirm('deleteSell',1)" disabled><span class="ab-icon">🟠</span><div class="ab-text"><span class="ab-title">Del Sell Stops</span><span class="ab-sub">Remove SELL STOPs</span></div></button>
+      <button class="action-btn reset"     id="btnReset1"    onclick="showConfirm('resetFlags',1)" disabled><span class="ab-icon">🔄</span><div class="ab-text"><span class="ab-title">Reset &amp; Re-check</span><span class="ab-sub">Re-place missing orders</span></div></button>
+    </div>
   </div>
 
-  <button class="toggle-btn loading" id="toggleBtn" onclick="handleToggle()">
-    <div class="btn-ring"></div>
-    <span class="btn-icon" id="btnIcon">⏳</span>
-    <span class="btn-label" id="btnLabel">LOADING</span>
-  </button>
-
-  <div class="action-section">
-    <div class="action-title">Quick Actions — All Accounts</div>
-    <button class="action-btn close-all" id="btnCloseAll" onclick="showConfirm('closeAll')" disabled>
-      <span class="ab-icon">🔴</span>
-      <div class="ab-text"><span class="ab-title">Close All Positions</span><span class="ab-sub">Closes all open BUY &amp; SELL trades immediately</span></div>
-    </button>
-    <button class="action-btn del-buy" id="btnDelBuy" onclick="showConfirm('deleteBuy')" disabled>
-      <span class="ab-icon">🔵</span>
-      <div class="ab-text"><span class="ab-title">Delete Buy Stops Only</span><span class="ab-sub">Removes pending BUY STOP orders, keeps SELL STOPs</span></div>
-    </button>
-    <button class="action-btn del-sell" id="btnDelSell" onclick="showConfirm('deleteSell')" disabled>
-      <span class="ab-icon">🟠</span>
-      <div class="ab-text"><span class="ab-title">Delete Sell Stops Only</span><span class="ab-sub">Removes pending SELL STOP orders, keeps BUY STOPs</span></div>
-    </button>
-    <button class="action-btn reset" id="btnResetFlags" onclick="showConfirm('resetFlags')" disabled>
-      <span class="ab-icon">🔄</span>
-      <div class="ab-text"><span class="ab-title">Reset &amp; Re-check Orders</span><span class="ab-sub">Re-evaluates valid levels and re-places any missing orders</span></div>
-    </button>
+  <!-- ══ LEVEL 2 ══════════════════════════════════════════════════ -->
+  <div class="level-section level2">
+    <div class="level-header">
+      <span class="level-badge l2">LEVEL 2</span>
+      <span class="level-label">Moderate</span>
+      <div class="level-pill loading" id="pill2"><div class="dot loading" id="dot2"></div><span id="txt2">…</span></div>
+    </div>
+    <button class="level-toggle loading" id="tog2" onclick="handleToggle(2)"><span id="togIcon2">⏳</span><span id="togLbl2">LOADING</span></button>
+    <div class="level-actions">
+      <button class="action-btn close-all" id="btnCloseAll2" onclick="showConfirm('closeAll',2)" disabled><span class="ab-icon">🔴</span><div class="ab-text"><span class="ab-title">Close All</span><span class="ab-sub">Close open trades</span></div></button>
+      <button class="action-btn del-buy"   id="btnDelBuy2"   onclick="showConfirm('deleteBuy',2)" disabled><span class="ab-icon">🔵</span><div class="ab-text"><span class="ab-title">Del Buy Stops</span><span class="ab-sub">Remove BUY STOPs</span></div></button>
+      <button class="action-btn del-sell"  id="btnDelSell2"  onclick="showConfirm('deleteSell',2)" disabled><span class="ab-icon">🟠</span><div class="ab-text"><span class="ab-title">Del Sell Stops</span><span class="ab-sub">Remove SELL STOPs</span></div></button>
+      <button class="action-btn reset"     id="btnReset2"    onclick="showConfirm('resetFlags',2)" disabled><span class="ab-icon">🔄</span><div class="ab-text"><span class="ab-title">Reset &amp; Re-check</span><span class="ab-sub">Re-place missing orders</span></div></button>
+    </div>
   </div>
 
+  <!-- ══ LEVEL 3 ══════════════════════════════════════════════════ -->
+  <div class="level-section level3">
+    <div class="level-header">
+      <span class="level-badge l3">LEVEL 3</span>
+      <span class="level-label">Conservative</span>
+      <div class="level-pill loading" id="pill3"><div class="dot loading" id="dot3"></div><span id="txt3">…</span></div>
+    </div>
+    <button class="level-toggle loading" id="tog3" onclick="handleToggle(3)"><span id="togIcon3">⏳</span><span id="togLbl3">LOADING</span></button>
+    <div class="level-actions">
+      <button class="action-btn close-all" id="btnCloseAll3" onclick="showConfirm('closeAll',3)" disabled><span class="ab-icon">🔴</span><div class="ab-text"><span class="ab-title">Close All</span><span class="ab-sub">Close open trades</span></div></button>
+      <button class="action-btn del-buy"   id="btnDelBuy3"   onclick="showConfirm('deleteBuy',3)" disabled><span class="ab-icon">🔵</span><div class="ab-text"><span class="ab-title">Del Buy Stops</span><span class="ab-sub">Remove BUY STOPs</span></div></button>
+      <button class="action-btn del-sell"  id="btnDelSell3"  onclick="showConfirm('deleteSell',3)" disabled><span class="ab-icon">🟠</span><div class="ab-text"><span class="ab-title">Del Sell Stops</span><span class="ab-sub">Remove SELL STOPs</span></div></button>
+      <button class="action-btn reset"     id="btnReset3"    onclick="showConfirm('resetFlags',3)" disabled><span class="ab-icon">🔄</span><div class="ab-text"><span class="ab-title">Reset &amp; Re-check</span><span class="ab-sub">Re-place missing orders</span></div></button>
+    </div>
+  </div>
+
+  <!-- Live command monitor -->
+  <div class="cmd-monitor">
+    <div class="cm-lbl">Live ea_command (Supabase)</div>
+    <div style="display:flex;gap:6px;flex-direction:column">
+      <div><span style="color:#555;font-size:9px">L1:</span> <span class="cm-val" id="cmdVal1">(loading...)</span></div>
+      <div><span style="color:#555;font-size:9px">L2:</span> <span class="cm-val" id="cmdVal2">(loading...)</span></div>
+      <div><span style="color:#555;font-size:9px">L3:</span> <span class="cm-val" id="cmdVal3">(loading...)</span></div>
+    </div>
+    <div class="cm-st" id="cmdSt"></div>
+  </div>
   <!-- Live monitor: shows what's in ea_command in Supabase right now -->
   <div class="cmd-monitor">
     <div class="cm-lbl">Supabase ea_command (live)</div>
@@ -223,297 +275,230 @@ body{display:flex;flex-direction:column;align-items:center;padding:env(safe-area
   </div>
 </div>
 
-<div class="footer">BULLEDGER PRO · www.bulledger.com · Dashboard v2.37</div>
+<div class="footer">BULLEDGER PRO · www.bulledger.com · Dashboard v2.38</div>
 <div class="toast" id="toast"></div>
 
 <script>
-// ── Config ────────────────────────────────────────────────────────────────────
 const SB  = "https://wixbjyolwrrvvvhwkkyw.supabase.co";
 const KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndpeGJqeW9sd3JydnZ2aHdra3l3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5MDIyMjYsImV4cCI6MjA4NzQ3ODIyNn0.VsF9brbwNoXLVf_5MQgiIV_xJhGq5v8V-Afh6-t56DQ";
 const TBL = "ea_control";
 const H   = {"apikey":KEY,"Authorization":"Bearer "+KEY,"Content-Type":"application/json","Prefer":"return=representation"};
 
-// ── State ─────────────────────────────────────────────────────────────────────
-let tradingState = null;
-let busy = false;
+let states = {1:null, 2:null, 3:null};
+let busy   = {1:false, 2:false, 3:false};
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
 async function sbGet(cols) {
   const r = await fetch(`${SB}/rest/v1/${TBL}?id=eq.1&select=${cols}`, {headers:H});
-  if (!r.ok) { const t = await r.text(); throw new Error("GET " + r.status + ": " + t); }
+  if(!r.ok){const t=await r.text();throw new Error("GET "+r.status+": "+t)}
   const d = await r.json();
-  if (!d || !d.length) throw new Error("No row found in ea_control");
+  if(!d||!d.length) throw new Error("No row in ea_control");
   return d[0];
 }
 async function sbPatch(obj) {
-  const r = await fetch(`${SB}/rest/v1/${TBL}?id=eq.1`, {method:"PATCH", headers:H, body:JSON.stringify(obj)});
-  if (!r.ok) { const t = await r.text(); throw new Error("PATCH " + r.status + ": " + t); }
+  const r = await fetch(`${SB}/rest/v1/${TBL}?id=eq.1`,{method:"PATCH",headers:H,body:JSON.stringify(obj)});
+  if(!r.ok){const t=await r.text();throw new Error("PATCH "+r.status+": "+t)}
 }
 
-// ── Fetch status ──────────────────────────────────────────────────────────────
 async function fetchStatus() {
   try {
-    const row = await sbGet("trading_enabled,updated_at,note,ea_command");
-    tradingState = row.trading_enabled;
-    renderState(tradingState);
-    enableActionBtns(true);
+    const row = await sbGet("trading_enabled_1,trading_enabled_2,trading_enabled_3,ea_command_1,ea_command_2,ea_command_3,updated_at,note");
+    document.getElementById("connStatus").textContent = "✓ Connected";
+    document.getElementById("connStatus").style.color = "#22c55e";
     document.getElementById("lastChanged").textContent = row.updated_at ? new Date(row.updated_at).toLocaleString() : "—";
     document.getElementById("lastNote").textContent    = row.note || "—";
-    document.getElementById("connStatus").textContent  = "✓ Connected";
-    document.getElementById("connStatus").style.color  = "#22c55e";
-    // Show live ea_command
-    const cv = row.ea_command || "";
-    const el = document.getElementById("cmdVal");
-    if (cv === "") {
-      el.textContent = "(empty — ready for next command)";
-      el.className = "cm-val";
-      el.style.color = "#333";
-    } else {
-      el.textContent = cv;
-      el.className = "cm-val active";
+    for(let lv=1;lv<=3;lv++) {
+      const te  = row["trading_enabled_"+lv];
+      const cmd = row["ea_command_"+lv] || "";
+      if(states[lv] === null || !busy[lv]) {
+        states[lv] = te;
+        renderLevel(lv, te);
+        setLevelBtnsEnabled(lv, true);
+      }
+      const cv = document.getElementById("cmdVal"+lv);
+      cv.textContent = cmd === "" ? "(empty)" : cmd;
+      cv.style.color = cmd ? "#c084fc" : "#333";
     }
   } catch(e) {
-    document.getElementById("connStatus").textContent = "⚠ " + e.message;
+    document.getElementById("connStatus").textContent = "⚠ "+e.message;
     document.getElementById("connStatus").style.color = "#f59e0b";
-    log("Connection error: " + e.message, "err");
+    log("Connection error: "+e.message,"err");
   }
 }
 
-function enableActionBtns(v) {
-  ["btnCloseAll","btnDelBuy","btnDelSell","btnResetFlags"].forEach(id => {
-    document.getElementById(id).disabled = !v;
+function setLevelBtnsEnabled(lv, v) {
+  ["btnCloseAll","btnDelBuy","btnDelSell","btnReset"].forEach(id => {
+    const el = document.getElementById(id+lv);
+    if(el) el.disabled = !v;
   });
 }
 
-// ── Main toggle ───────────────────────────────────────────────────────────────
-async function handleToggle() {
-  if (busy || tradingState === null) return;
-  const ns = !tradingState;
+async function handleToggle(lv) {
+  if(busy[lv] || states[lv]===null) return;
+  const ns = !states[lv];
   const note = document.getElementById("noteInput").value.trim() || null;
-  busy = true; setLoadingUI(); enableActionBtns(false);
+  busy[lv] = true;
+  setLevelBtnsEnabled(lv, false);
+  setLevelLoading(lv);
   try {
-    await sbPatch({trading_enabled: ns, updated_at: new Date().toISOString(), note: note});
-    tradingState = ns; renderState(tradingState);
+    const patch = {};
+    patch["trading_enabled_"+lv] = ns;
+    patch.updated_at = new Date().toISOString();
+    if(note) patch.note = note;
+    await sbPatch(patch);
+    states[lv] = ns;
+    renderLevel(lv, ns);
     document.getElementById("lastChanged").textContent = new Date().toLocaleString();
-    document.getElementById("lastNote").textContent    = note || "—";
-    document.getElementById("noteInput").value         = "";
-    log("Trading " + (ns ? "ENABLED" : "DISABLED") + (note ? ` — "${note}"` : ""), ns ? "on" : "off");
-    showToast(ns ? "✅ Trading ENABLED — all EAs active within 5s" : "🛑 Trading DISABLED — all EAs stop within 5s");
+    if(note) { document.getElementById("lastNote").textContent=note; document.getElementById("noteInput").value=""; }
+    log("Level "+lv+" Trading "+(ns?"ENABLED":"DISABLED")+(note?` — "${note}"`:""), ns?"on":"off");
+    showToast("Level "+lv+": "+(ns?"✅ ENABLED":"🛑 DISABLED")+" — EAs update within 5s");
   } catch(e) {
-    log("Toggle failed: " + e.message, "err");
-    showToast("❌ " + e.message);
-    renderState(tradingState);
+    log("Level "+lv+" toggle failed: "+e.message,"err");
+    showToast("❌ "+e.message);
+    renderLevel(lv, states[lv]);
   }
-  busy = false; enableActionBtns(true);
+  busy[lv] = false;
+  setLevelBtnsEnabled(lv, true);
 }
 
-// ── Action button confirm flow ────────────────────────────────────────────────
-// CFG maps action name → display config
 const CFG = {
-  closeAll:   {cmd:"close_all",   icon:"🔴", title:"Close All Positions?",   okCls:"red",    okTxt:"Yes, Close All",         toast:"🔴 Close All sent — EA executes within 5s",         logMsg:"Close All Positions sent"},
-  deleteBuy:  {cmd:"delete_buy",  icon:"🔵", title:"Delete All Buy Stops?",  okCls:"blue",   okTxt:"Yes, Delete Buy Stops",  toast:"🔵 Delete Buy Stops sent — EA executes within 5s",  logMsg:"Delete Buy Stops sent"},
-  deleteSell:  {cmd:"delete_sell",  icon:"🟠", title:"Delete All Sell Stops?",      okCls:"orange", okTxt:"Yes, Delete Sell Stops",  toast:"🟠 Delete Sell Stops sent — EA executes within 5s",  logMsg:"Delete Sell Stops sent"},
-  resetFlags:  {cmd:"reset_flags",  icon:"🔄", title:"Reset & Re-check Orders?",      okCls:"purple", okTxt:"Yes, Reset & Re-check",   toast:"🔄 Reset sent — EA re-evaluates valid levels within 5s", logMsg:"Reset Flags sent"},
+  closeAll:   {cmd:"close_all",   icon:"🔴", title:"Close All Positions?",   okCls:"red",    okTxt:"Yes, Close All",        toast:"🔴 Close All sent (Level {L}) — EA executes within 5s"},
+  deleteBuy:  {cmd:"delete_buy",  icon:"🔵", title:"Delete All Buy Stops?",  okCls:"blue",   okTxt:"Yes, Delete Buy Stops", toast:"🔵 Delete Buy Stops sent (Level {L}) — EA executes within 5s"},
+  deleteSell: {cmd:"delete_sell", icon:"🟠", title:"Delete All Sell Stops?", okCls:"orange", okTxt:"Yes, Delete Sell Stops",toast:"🟠 Delete Sell Stops sent (Level {L}) — EA executes within 5s"},
+  resetFlags: {cmd:"reset_flags", icon:"🔄", title:"Reset & Re-check?",      okCls:"purple", okTxt:"Yes, Reset & Re-check", toast:"🔄 Reset sent (Level {L}) — EA re-evaluates within 5s"},
 };
 
-// Step 1: button clicked → show confirm modal
-// We store the action name on the OK button's dataset so closeConfirm cannot interfere
-function showConfirm(action) {
-  if (busy) return;
+let pendingLevel = null;
+
+function showConfirm(action, lv) {
+  if(busy[lv]) return;
+  pendingLevel = lv;
   const c = CFG[action];
   document.getElementById("ci").textContent  = c.icon;
-  document.getElementById("ct").textContent  = c.title;
-  document.getElementById("cs").textContent  = "This will affect ALL connected EA accounts. Are you sure?";
-  const okBtn = document.getElementById("okBtn");
-  okBtn.textContent  = c.okTxt;
-  okBtn.className    = "confirm-ok " + c.okCls;
-  okBtn.dataset.action = action;   // ← action stored HERE, not in a shared variable
+  document.getElementById("ct").textContent  = "Level "+lv+" — "+c.title;
+  document.getElementById("cs").textContent  = "This affects ALL Level "+lv+" accounts only. Levels "+(lv===1?"2 & 3":lv===2?"1 & 3":"1 & 2")+" are NOT affected.";
+  const ok = document.getElementById("okBtn");
+  ok.textContent  = c.okTxt;
+  ok.className    = "confirm-ok "+c.okCls;
+  ok.dataset.action = action;
+  ok.dataset.level  = lv;
   document.getElementById("confirmModal").classList.add("show");
 }
 
-// Step 2: Cancel clicked → just hide modal, nothing else
 document.getElementById("cancelBtn").addEventListener("click", function() {
   document.getElementById("confirmModal").classList.remove("show");
 });
 
-// Step 3: OK clicked → read action from button, hide modal, execute
-// The key fix: action is read from okBtn.dataset.action, NOT from a shared
-// variable that could be nulled by the cancel/close path.
 document.getElementById("okBtn").addEventListener("click", async function() {
-  const action = this.dataset.action;          // read action from button attribute
-  document.getElementById("confirmModal").classList.remove("show"); // hide modal
-  if (!action || busy) return;
-  this.dataset.action = "";                    // clear so double-click is safe
-  await executeAction(action);
+  const action = this.dataset.action;
+  const lv     = parseInt(this.dataset.level);
+  document.getElementById("confirmModal").classList.remove("show");
+  if(!action || !lv || busy[lv]) return;
+  this.dataset.action = ""; this.dataset.level = "";
+  await executeAction(action, lv);
 });
 
-// Close modal when tapping the dark backdrop
 document.getElementById("confirmModal").addEventListener("click", function(e) {
-  if (e.target === this) document.getElementById("confirmModal").classList.remove("show");
+  if(e.target===this) document.getElementById("confirmModal").classList.remove("show");
 });
 
-// Step 4: Do the actual Supabase write with verification
-async function executeAction(action) {
+async function executeAction(action, lv) {
   const c = CFG[action];
-  if (!c) { log("Unknown action: " + action, "err"); return; }
-
-  busy = true; enableActionBtns(false);
-  const ts  = Math.floor(Date.now() / 1000);
-  const cmd = c.cmd + ":" + ts;
-
-  const st = document.getElementById("cmdSt");
-  st.textContent = "Writing " + cmd + " ..."; st.className = "cm-st wait";
-  log("Writing command: " + cmd, "action");
-
+  if(!c) return;
+  busy[lv] = true;
+  setLevelBtnsEnabled(lv, false);
+  const ts  = Math.floor(Date.now()/1000);
+  const cmd = c.cmd+":"+ts;
+  const st  = document.getElementById("cmdSt");
+  st.textContent = "Writing to Level "+lv+"..."; st.className="cm-st wait";
+  log("Level "+lv+": sending "+cmd,"action");
   try {
-    // Write to Supabase
-    await sbPatch({ea_command: cmd});
-    log("PATCH succeeded ✓", "action");
-    st.textContent = "Verifying..."; st.className = "cm-st wait";
-
-    // Read back after 1s to confirm
-    await new Promise(r => setTimeout(r, 1000));
-    const row = await sbGet("ea_command");
-    const confirmed = row.ea_command || "";
-
-    const cv = document.getElementById("cmdVal");
-    if (confirmed === cmd) {
-      cv.textContent = confirmed; cv.className = "cm-val active";
-      st.textContent = "✓ CONFIRMED in Supabase — EA will execute within 5s"; st.className = "cm-st ok";
-      log("✓ CONFIRMED: " + confirmed, "ok");
-      showToast(c.toast);
+    const patch = {};
+    patch["ea_command_"+lv] = cmd;
+    await sbPatch(patch);
+    log("Level "+lv+" PATCH ok. Verifying...","action");
+    await new Promise(r=>setTimeout(r,1000));
+    const row = await sbGet("ea_command_"+lv);
+    const confirmed = row["ea_command_"+lv] || "";
+    const cv = document.getElementById("cmdVal"+lv);
+    if(confirmed === cmd) {
+      cv.textContent = confirmed; cv.style.color="#c084fc";
+      st.textContent = "✓ Confirmed in Supabase — Level "+lv+" EAs execute within 5s"; st.className="cm-st ok";
+      log("Level "+lv+" confirmed: "+confirmed,"ok");
+      showToast(c.toast.replace("{L}",lv));
     } else {
-      cv.textContent = "Got: " + confirmed; cv.className = "cm-val";
-      st.textContent = "✗ Verify failed. Supabase has: '" + confirmed + "'"; st.className = "cm-st fail";
-      log("✗ Verify mismatch. Expected: " + cmd + " Got: " + confirmed, "err");
-      showToast("❌ Write failed — see activity log");
+      cv.textContent = "Got: "+confirmed;
+      st.textContent = "✗ Verify failed. Got: "+confirmed; st.className="cm-st fail";
+      log("Level "+lv+" verify mismatch: "+confirmed,"err");
+      showToast("❌ Write failed — see log");
     }
-
-    // Auto-clear after 12s so old commands don't replay on EA restart
-    setTimeout(async () => {
+    setTimeout(async()=>{
       try {
-        await sbPatch({ea_command: ""});
-        cv.textContent = "(empty — ready for next command)"; cv.className = "cm-val"; cv.style.color = "#333";
-        st.textContent = "Command cleared"; st.className = "cm-st";
-        log("Command auto-cleared", "info");
-      } catch(e) { /* best-effort */ }
+        const clr = {}; clr["ea_command_"+lv]="";
+        await sbPatch(clr);
+        const cv2 = document.getElementById("cmdVal"+lv);
+        cv2.textContent="(empty)"; cv2.style.color="#333";
+        st.textContent=""; st.className="cm-st";
+        log("Level "+lv+" command cleared","info");
+      } catch(e){}
     }, 12000);
-
   } catch(e) {
-    log("✗ Action failed: " + e.message, "err");
-    document.getElementById("cmdSt").textContent = "✗ Failed: " + e.message;
-    document.getElementById("cmdSt").className = "cm-st fail";
-    showToast("❌ " + e.message);
+    log("Level "+lv+" action failed: "+e.message,"err");
+    st.textContent="✗ "+e.message; st.className="cm-st fail";
+    showToast("❌ "+e.message);
   }
-
-  busy = false; enableActionBtns(true);
+  busy[lv]=false; setLevelBtnsEnabled(lv,true);
 }
 
-// ── Render ────────────────────────────────────────────────────────────────────
-function renderState(s) {
-  const c = s ? "on" : "off";
-  document.getElementById("statusPill").className  = "status-pill " + c;
-  document.getElementById("statusDot").className   = "dot " + c;
-  document.getElementById("statusText").textContent = s ? "TRADING ON" : "TRADING OFF";
-  document.getElementById("toggleBtn").className   = "toggle-btn " + c;
-  document.getElementById("btnIcon").textContent   = s ? "✅" : "🛑";
-  document.getElementById("btnLabel").textContent  = s ? "TAP TO DISABLE" : "TAP TO ENABLE";
-}
-function setLoadingUI() {
-  document.getElementById("statusPill").className  = "status-pill loading";
-  document.getElementById("toggleBtn").className   = "toggle-btn loading";
-  document.getElementById("statusDot").className   = "dot loading";
-  document.getElementById("statusText").textContent = "UPDATING...";
-  document.getElementById("btnIcon").textContent   = "⏳";
-  document.getElementById("btnLabel").textContent  = "PLEASE WAIT";
+function renderLevel(lv, on) {
+  const pill = document.getElementById("pill"+lv);
+  const dot  = document.getElementById("dot"+lv);
+  const txt  = document.getElementById("txt"+lv);
+  const tog  = document.getElementById("tog"+lv);
+  const icon = document.getElementById("togIcon"+lv);
+  const lbl  = document.getElementById("togLbl"+lv);
+  const cls  = on ? "on" : "off";
+  pill.className = "level-pill "+cls;
+  dot.className  = "dot "+cls;
+  txt.textContent = on ? "ON" : "OFF";
+  tog.className  = "level-toggle "+cls;
+  icon.textContent = on ? "✅" : "🛑";
+  lbl.textContent  = on ? "TAP TO DISABLE" : "TAP TO ENABLE";
 }
 
-// ── Log ───────────────────────────────────────────────────────────────────────
-function log(msg, type) {
-  type = type || "info";
-  const box = document.getElementById("logBox");
-  const now = new Date().toTimeString().slice(0,8);
-  const el  = document.createElement("div");
-  el.className = "log-entry";
-  el.innerHTML = '<span class="ts">' + now + '</span><span class="msg ' + type + '">' + msg + '</span>';
-  box.insertBefore(el, box.firstChild);
-  while (box.children.length > 60) box.removeChild(box.lastChild);
+function setLevelLoading(lv) {
+  document.getElementById("pill"+lv).className = "level-pill loading";
+  document.getElementById("dot"+lv).className  = "dot loading";
+  document.getElementById("txt"+lv).textContent = "…";
+  document.getElementById("tog"+lv).className  = "level-toggle loading";
+  document.getElementById("togIcon"+lv).textContent = "⏳";
+  document.getElementById("togLbl"+lv).textContent  = "PLEASE WAIT";
 }
 
-// ── Toast ─────────────────────────────────────────────────────────────────────
+function log(msg,type){type=type||"info";const box=document.getElementById("logBox"),now=new Date().toTimeString().slice(0,8),el=document.createElement("div");el.className="log-entry";el.innerHTML='<span class="ts">'+now+'</span><span class="msg '+type+'">'+msg+'</span>';box.insertBefore(el,box.firstChild);while(box.children.length>60)box.removeChild(box.lastChild)}
+
 var toastTimer;
-function showToast(msg) {
-  var t = document.getElementById("toast");
-  t.textContent = msg; t.classList.add("show");
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(function(){ t.classList.remove("show"); }, 5000);
-}
+function showToast(msg){var t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(function(){t.classList.remove("show")},5000)}
 
-// ── PWA ───────────────────────────────────────────────────────────────────────
-var dp = null;
-window.addEventListener("beforeinstallprompt", function(e){ e.preventDefault(); dp=e; document.getElementById("installBanner").classList.add("show"); });
-document.getElementById("installBtn").addEventListener("click", async function(){
-  if(!dp) return;
-  dp.prompt();
-  var r = await dp.userChoice;
-  if(r.outcome==="accepted"){ log("App installed","info"); showToast("✅ App installed!"); }
-  dp=null; document.getElementById("installBanner").classList.remove("show");
-});
-document.getElementById("dismissInstall").addEventListener("click", function(){ document.getElementById("installBanner").classList.remove("show"); });
-window.addEventListener("appinstalled", function(){ document.getElementById("installBanner").classList.remove("show"); log("Installed","info"); });
-
+var dp=null;
+window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();dp=e;document.getElementById("installBanner").classList.add("show")});
+document.getElementById("installBtn").addEventListener("click",async function(){if(!dp)return;dp.prompt();var r=await dp.userChoice;if(r.outcome==="accepted"){log("Installed","info");showToast("✅ Installed!")}dp=null;document.getElementById("installBanner").classList.remove("show")});
+document.getElementById("dismissInstall").addEventListener("click",function(){document.getElementById("installBanner").classList.remove("show")});
 if("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(function(){});
 
-// ── Auth ──────────────────────────────────────────────────────────────────────
-var PH = "a08d63bbfa6fd80e2c6d1da1a2ea78268b11722e1dbd0a8b1ed7ed6ce9c3dbe4";
-var authed = false;
-
-async function sha256(s) {
-  var b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
-  return Array.from(new Uint8Array(b)).map(function(x){ return x.toString(16).padStart(2,"0"); }).join("");
+var PH="a08d63bbfa6fd80e2c6d1da1a2ea78268b11722e1dbd0a8b1ed7ed6ce9c3dbe4",authed=false;
+async function sha256(s){var b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));return Array.from(new Uint8Array(b)).map(function(x){return x.toString(16).padStart(2,"0")}).join("")}
+async function tryLogin(){
+  var btn=document.getElementById("loginBtn"),inp=document.getElementById("pwdInput"),err=document.getElementById("loginError"),pwd=inp.value;
+  if(!pwd)return;btn.disabled=true;btn.textContent="CHECKING...";err.textContent="";
+  var h=await sha256(pwd);
+  if(h===PH){authed=true;sessionStorage.setItem("bulledger_auth","1");document.getElementById("loginOverlay").classList.add("hidden");document.getElementById("logoutBtn").style.display="block";fetchStatus().then(function(){log("Connected ✓","info")});setInterval(function(){if(!busy[1]&&!busy[2]&&!busy[3])fetchStatus()},8000)}
+  else{inp.value="";inp.classList.add("shake");err.textContent="Incorrect password.";setTimeout(function(){inp.classList.remove("shake")},400);btn.disabled=false;btn.textContent="UNLOCK";btn.disabled=true;setTimeout(function(){btn.disabled=false},2000)}
 }
-
-async function tryLogin() {
-  var btn=document.getElementById("loginBtn"), inp=document.getElementById("pwdInput"),
-      err=document.getElementById("loginError"), pwd=inp.value;
-  if(!pwd) return;
-  btn.disabled=true; btn.textContent="CHECKING..."; err.textContent="";
-  var h = await sha256(pwd);
-  if(h===PH) {
-    authed=true; sessionStorage.setItem("bulledger_auth","1");
-    document.getElementById("loginOverlay").classList.add("hidden");
-    document.getElementById("logoutBtn").style.display="block";
-    fetchStatus().then(function(){ log("Connected to Supabase ✓","info"); });
-    setInterval(function(){ if(!busy) fetchStatus(); }, 8000);
-  } else {
-    inp.value=""; inp.classList.add("shake"); err.textContent="Incorrect password. Try again.";
-    setTimeout(function(){ inp.classList.remove("shake"); }, 400);
-    btn.disabled=false; btn.textContent="UNLOCK";
-    btn.disabled=true; setTimeout(function(){ btn.disabled=false; }, 2000);
-  }
-}
-
-function doLogout() {
-  sessionStorage.removeItem("bulledger_auth"); authed=false;
-  document.getElementById("loginOverlay").classList.remove("hidden");
-  document.getElementById("logoutBtn").style.display="none";
-  document.getElementById("pwdInput").value="";
-  document.getElementById("loginError").textContent="";
-  tradingState=null; enableActionBtns(false);
-}
-
-document.getElementById("loginBtn").addEventListener("click", tryLogin);
-document.getElementById("pwdInput").addEventListener("keydown", function(e){ if(e.key==="Enter") tryLogin(); });
-document.getElementById("logoutBtn").addEventListener("click", doLogout);
-
-// ── Boot ──────────────────────────────────────────────────────────────────────
-if(sessionStorage.getItem("bulledger_auth")==="1") {
-  authed=true;
-  document.getElementById("loginOverlay").classList.add("hidden");
-  document.getElementById("logoutBtn").style.display="block";
-  fetchStatus().then(function(){ log("Connected to Supabase ✓","info"); });
-  setInterval(function(){ if(!busy) fetchStatus(); }, 8000);
-}
+function doLogout(){sessionStorage.removeItem("bulledger_auth");authed=false;document.getElementById("loginOverlay").classList.remove("hidden");document.getElementById("logoutBtn").style.display="none";document.getElementById("pwdInput").value="";document.getElementById("loginError").textContent="";states={1:null,2:null,3:null};for(let lv=1;lv<=3;lv++)setLevelBtnsEnabled(lv,false)}
+document.getElementById("loginBtn").addEventListener("click",tryLogin);
+document.getElementById("pwdInput").addEventListener("keydown",function(e){if(e.key==="Enter")tryLogin()});
+document.getElementById("logoutBtn").addEventListener("click",doLogout);
+if(sessionStorage.getItem("bulledger_auth")==="1"){authed=true;document.getElementById("loginOverlay").classList.add("hidden");document.getElementById("logoutBtn").style.display="block";fetchStatus().then(function(){log("Connected ✓","info")});setInterval(function(){if(!busy[1]&&!busy[2]&&!busy[3])fetchStatus()},8000)}
 </script>
 </body>
 </html>
